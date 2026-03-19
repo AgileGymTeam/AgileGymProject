@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Class details</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        <div class="container top">
+            <table class="navigation">
+                <tr>
+                    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                    <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
+                    <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
+                    <td class="navBox"><a href=""><strong>Profile</strong></a></td>
+                    <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="container">
+            <div class="content">
+                <h2>Current class details:</h2>
+                <p>[Class name]</p>
+                <p>[Date and time]</p>
+                <p>[Assigned Trainer]</p>
+                <p>[Category]</p>
+                <p>[Description]</p>
+            </div>
+
+            <div class="content">
+                <h2>Edit class details:</h2>
+                <form id="editClass">
+                    <label>Class name:</label>
+                        <input type="text" id="inputClassName">
+
+                    <label>Date:</label>
+                        <input type="date" id="inputDate">
+
+                    <label>Time:</label>
+                        <input type="time" id="inputTime">
+
+                    <label>Assigned trainer:</label>
+                        <select id="assignTrainer">
+                            <option value="1">Trainer 1</option>
+                            <option value="2">Trainer 2</option>
+                            <option value="3">Trainer 3</option>
+                            <option value="4">Trainer 4</option>
+                        </select>
+
+                    <label>Category:</label>
+                        <select id="selectCategory">
+                            <option value="1">Cardio</option>
+                            <option value="2">Legs</option>
+                            <option value="3">Arms</option>
+                            <option value="4">Abs</option>
+                        </select>  
+
+                    <label>Description:</label>
+                        <textarea id="inputDetails"></textarea>
+                
+                    <button type="submit">Apply changes</button>
+                </form>
+            </div>
+        </div>
+
+    </body>
+</html>
