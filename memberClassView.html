@@ -34,36 +34,61 @@
                 </form>
             </div>
             
-            <div class="classList">
-                <div class="class">
-                    <h2>[Class name]</h2>
-                    <p>[Date and time]</p>
-                    <a href="memberClassDetails.html">Click here to see details!</a>
+
+            <template id="classTemplate">
+                <div class="classView">
+                    <h2 class="className"></h2>
+                    <p class="classDate"></p>
+                    <a class="classDetails">Click here to see details!</a>
                 </div>
-                 <div class="class">
-                    <h2>[Class name]</h2>
-                    <p>[Date and time]</p>
-                    <a href="memberClassDetails.html">Click here to see details!</a>
-                </div>
-                 <div class="class">
-                    <h2>[Class name]</h2>
-                    <p>[Date and time]</p>
-                    <a href="memberClassDetails.html">Click here to see details!</a>
-                </div>
-                 <div class="class">
-                    <h2>[Class name]</h2>
-                    <p>[Date and time]</p>
-                    <a href="memberClassDetails.html">Click here to see details!</a>
-                </div>
-                 <div class="class">
-                    <h2>[Class name]</h2>
-                    <p>[Date and time]</p>
-                    <a href="memberClassDetails.html">Click here to see details!</a>
-                </div>
-                
-            </div>
+            </template>
+
+            <div id="classList"></div>
+
         </div>
-        
-        
+
+        <script type="module">
+            import { db } from './firebaseConfig.js'
+            import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+            // fetching all classes and displaying in a list
+
+            // set variables
+            const list = document.getElementById('classList');
+            const template = document.getElementById('classTemplate');
+            const classesRef = ref(db, 'classes')
+
+            // create real time listener
+            onValue(classesRef, (snapshot) => {
+                // clear list before re-render
+                list.innerHTML = ''; 
+
+                // get data snapshot
+                const data = snapshot.val();
+
+                // in case data is null, return
+                if (!data) {
+                    list.innerHTML = "<p>No classes found</p>";
+                    return;
+                }
+
+                // loop over each class
+                for (let key in data) {
+                    const classData = data[key];
+
+                    // make copy of template
+                    const templateCopy = template.content.cloneNode(true);
+
+                    // fill in template with class details
+                    templateCopy.querySelector('.className').textContent = classData.name;
+                    templateCopy.querySelector('.classDate').textContent = classData.date;
+                    // pass class id as a parameter to next page
+                    templateCopy.querySelector('.classDetails').href = `memberClassDetails.html?id=${key}`;
+
+                    // add to list
+                    list.appendChild(templateCopy);
+                }
+            });
+        </script>
     </body>
 </html>
