@@ -21,19 +21,61 @@
             </table>
         </div>
 
+        <p>Page functinality still in progress.</p>
+
         <div class="container">
             <div class="content">
-                <h1>[Class name]</h1>
-                <p>[Date and time]</p>
-                <p>[Assigned Trainer]</p>
-                <p>[Category]</p>
-                <p>[Description]</p>
+                <h1 id="className"></h1>
+                <p id="classDate"></p>
+                <p id="classTime"></p>
+                <p id="classLength">hour</p>
+                <p id="trainerName"></p>
+
                 <form id="signup">
                     <button type="submit">Sign up</button>
                 </form>
             </div>
         </div>
+        <script type="module">
+            import { db } from './firebaseConfig.js'
+            import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
+            // catch params passed from class view page 
+            const id = new URLSearchParams(window.location.search).get('id');
+            const classRef = ref(db, 'classes/' + id);
+
+            // create real time listener
+            onValue(classRef, (classSnapshot) => {
+
+                // get class data snapshot
+                const classData = classSnapshot.val();
+
+                // return function if no data
+                if (!classData) return;
+
+                // fill in class details from database
+                document.getElementById('className').textContent = classData.name;
+                document.getElementById('classDate').textContent = classData.date;
+                document.getElementById('classTime').textContent = classData.time.start;
+                document.getElementById('classLength').textContent = classData.hours;
+
+                // fetch trainer name 
+                const trainerId = classData.trainer_ID
+                const trainerRef = ref(db, `trainers/${trainerId}`);
+
+                // create real time listener for trainer data
+                onValue(trainerRef, (trainerSnapshot) => {
+
+                    // get trainer snapshot
+                    const trainerData = trainerSnapshot.val();
+
+                    if (!trainerData) return;
+
+                    document.getElementById('trainerName').textContent = trainerData.name;
+                });
+            });
+
+        </script>
 
     </body>
 </html>
