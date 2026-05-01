@@ -21,12 +21,12 @@
 
         <div class="container">
             <div class="content">
-                <h2>Current class details:</h2>
-                <p>[Class name]</p>
-                <p>[Date and time]</p>
-                <p>[Assigned Trainer]</p>
-                <p>[Category]</p>
-                <p>[Description]</p>
+                <h1>Current class details:</h1>
+                <p id="className"></p>
+                <p id="classDate"></p>
+                <p id="classTime"></p>
+                <p id="classLength"></p>
+                <p id="trainerName"></p>
             </div>
 
             <div class="content">
@@ -34,36 +34,127 @@
                 <form id="editClass">
                     <label>Class name:</label>
                         <input type="text" id="inputClassName">
-
+                    </br>
                     <label>Date:</label>
                         <input type="date" id="inputDate">
-
-                    <label>Time:</label>
-                        <input type="time" id="inputTime">
-
+                    </br>
+                    <label>Time start:</label>
+                        <input type="time" id="inputStartTime">
+                    </br>
+                    <label>Class length (hours):</label>
+                        <input type="number" id="inputLength">
+                    </br>
                     <label>Assigned trainer:</label>
                         <select id="assignTrainer">
-                            <option value="1">Trainer 1</option>
-                            <option value="2">Trainer 2</option>
-                            <option value="3">Trainer 3</option>
-                            <option value="4">Trainer 4</option>
+                            <option value="">Select a trainer</option>
                         </select>
-
-                    <label>Category:</label>
-                        <select id="selectCategory">
-                            <option value="1">Cardio</option>
-                            <option value="2">Legs</option>
-                            <option value="3">Arms</option>
-                            <option value="4">Abs</option>
-                        </select>  
-
-                    <label>Description:</label>
-                        <textarea id="inputDetails"></textarea>
-                
-                    <button type="submit">Apply changes</button>
+                    </br>
+                    <button type="button" id="updateButton">Apply changes</button>
                 </form>
             </div>
         </div>
+
+        <script type="module">
+            import { db } from './firebaseConfig.js'
+            import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+            // catch params passed from class view page 
+            const id = new URLSearchParams(window.location.search).get('id');
+            const classRef = ref(db, 'classes/' + id);
+
+            let trainerCache = {};
+            let classData = null;
+
+            // DISPLAY CLASS DETAILS FROM DATABASE
+
+            // create real time listener
+            onValue(classRef, (classSnapshot) => {
+
+                // get class data snapshot
+                classData = classSnapshot.val();
+
+                // return function if no data
+                if (!classData) return;
+
+                // fill in class details from database
+                document.getElementById('className').textContent = classData.name;
+                document.getElementById('classDate').textContent = classData.date;
+                document.getElementById('classTime').textContent = classData.time.start;
+                if (classData.time.hours <= 1) {
+                    document.getElementById('classLength').textContent = classData.time.hours + ' hour';
+                } else {
+                    document.getElementById('classLength').textContent = classData.time.hours + ' hours';
+                };
+                
+                // render the trainers name
+                renderTrainerName(classData);
+            });
+
+            // DISPLAY ALL TRAINERS IN DROPDOWN 
+
+            const trainersRef = ref(db, 'trainers');
+
+            // create listener for all trainers
+            onValue(trainersRef, (trainerSnapshot) => {
+
+                // get snapshot of all trainers and add to trainers cache
+                trainerCache = trainerSnapshot.val();
+                const assign = document.getElementById('assignTrainer');
+
+                // return if empty
+                if (!trainerCache) return;
+
+                // clear old trainer options but keep placeholder (avoids duplicates)
+                assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
+
+                // append each trainers id and name to dropdown options
+                Object.entries(trainerCache).forEach(([id, trainer]) => {
+                    const option = document.createElement('option');
+                    option.value = id;
+                    option.textContent = trainer.name;
+                    assign.appendChild(option);
+                });
+
+                // call render function again incase name updated
+                renderTrainerName();
+            }) 
+
+            // function to render the trainers name in details
+            function renderTrainerName() {
+                if (!classData) return;
+
+                const name = trainerCache?.[classData.trainer_ID]?.name || 'Loading...';
+                document.getElementById('trainerName').textContent = name;
+            }
+
+            // UPDATING DATABASE
+
+            // add button event listener to update when button is clicked
+            const btn = document.getElementById('updateButton');
+            btn.addEventListener('click', () => {
+     
+                // store only values that change in updatedData
+                const updatedData = {}
+
+                const name = document.getElementById('inputClassName').value;
+                if (name) updatedData.name = name;
+
+                const date = document.getElementById('inputDate').value;
+                if (date) updatedData.date = date;
+
+                const trainerId = document.getElementById('assignTrainer').value;
+                if (trainerId) updatedData.trainer_ID = trainerId;
+
+                const startTime = document.getElementById('inputStartTime').value;
+                if (startTime) updatedData['time/start'] = startTime;
+
+                const hours = document.getElementById('inputLength').value;
+                if (hours) updatedData['time/hours'] = Number(hours);
+
+                // update database using updatedData (avoids overwriting with empty strings)
+                update(classRef, updatedData);
+            })
+        </script>
 
     </body>
 </html>
