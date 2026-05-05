@@ -23,35 +23,180 @@
         <div class="container">
             <div class="content">
                 <h1>Subscription Payment</h1>
+                <p id="billingMemberName">Loading member details...</p>
+                <p id="billingMemberEmail"></p>
                 <form id="subscriptionPayment">
                     <label>Cardholder Name</label>
-                    <input type="text" id="cardholderName">
+                    <input type="text" id="cardholderName" required>
 
                     <label>Card Number</label>
-                    <input type="text" id="cardNumber">
+                    <input type="text" id="cardNumber" required>
 
                     <div class="paymentRow">
                         <div class="paymentField">
                             <label>Expiry</label>
-                            <input type="text" id="cardExpiry" placeholder="MM / YY">
+                            <input type="text" id="cardExpiry" placeholder="MM / YY" required>
                         </div>
                         <div class="paymentField">
                             <label>CVV</label>
-                            <input type="text" id="cardCvv">
+                            <input type="text" id="cardCvv" required>
                         </div>
                     </div>
 
                     <div class="orderSummary">
                         <label>Order Summary</label>
-                        <p>Pro Plan (Monthly)</p>
-                        <p>$25.00</p>
-                        <p>Secure payment</p>
+                        <p id="selectedPlanName">Loading selected plan...</p>
+                        <p id="selectedPlanPrice"></p>
+                        <p id="paymentStatusText">Secure payment</p>
                     </div>
 
                     <button type="submit">Pay Now</button>
                 </form>
                 <a href="memberProfile.html">Cancel and go back</a>
+                <p id="billingMessage"></p>
             </div>
         </div>
+
+        <script type="module">
+            import { auth, db } from './firebaseConfig.js';
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+            import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+            const form = document.getElementById("subscriptionPayment");
+            const billingMemberName = document.getElementById("billingMemberName");
+            const billingMemberEmail = document.getElementById("billingMemberEmail");
+            const selectedPlanName = document.getElementById("selectedPlanName");
+            const selectedPlanPrice = document.getElementById("selectedPlanPrice");
+            const paymentStatusText = document.getElementById("paymentStatusText");
+            const billingMessage = document.getElementById("billingMessage");
+            const payButton = form.querySelector("button");
+
+            let currentUser = null;
+            let currentSubscription = null;
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                currentUser = user;
+
+                try {
+                    const userRef = ref(db, "users/" + user.uid);
+                    const userSnapshot = await get(userRef);
+
+                    if (!userSnapshot.exists()) {
+                        billingMessage.textContent = "User profile was not found.";
+                        payButton.disabled = true;
+                        return;
+                    }
+
+                    const userData = userSnapshot.val();
+                    const profile = userData.profile || {};
+                    currentSubscription = userData.subscription || null;
+
+                    billingMemberName.textContent = profile.name || userData.name || "Member";
+                    billingMemberEmail.textContent = userData.email || user.email || "";
+
+                    if (!currentSubscription || !currentSubscription.planId) {
+                        selectedPlanName.textContent = "No plan selected";
+                        selectedPlanPrice.textContent = "Choose a plan before making payment";
+                        paymentStatusText.textContent = "Redirecting to the plan selection page.";
+                        payButton.disabled = true;
+                        setTimeout(() => {
+                            window.location.href = "memberProfile.html";
+                        }, 1500);
+                        return;
+                    }
+
+                    selectedPlanName.textContent = currentSubscription.planName;
+                    selectedPlanPrice.textContent = "$" + currentSubscription.price + " / " + currentSubscription.billingCycle;
+                    paymentStatusText.textContent = currentSubscription.status === "active"
+                        ? "This subscription is already active."
+                        : "Secure payment";
+
+                    if (currentSubscription.status === "active") {
+                        payButton.disabled = true;
+                        billingMessage.textContent = "Your subscription is already active. Select a different plan to make another payment.";
+                    } else {
+                        payButton.disabled = false;
+                    }
+                } catch (error) {
+                    billingMessage.textContent = "Unable to load billing information: " + error.message;
+                    payButton.disabled = true;
+                }
+            });
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                if (!currentUser || !currentSubscription) {
+                    billingMessage.textContent = "No member subscription found.";
+                    return;
+                }
+
+                if (currentSubscription.status === "active") {
+                    billingMessage.textContent = "This subscription is already active.";
+                    return;
+                }
+
+                const cardholderName = document.getElementById("cardholderName").value.trim();
+                const cardNumber = document.getElementById("cardNumber").value.replace(/\s+/g, "");
+                const cardExpiry = document.getElementById("cardExpiry").value.trim();
+                const cardCvv = document.getElementById("cardCvv").value.trim();
+
+                const validCardNumber = /^\d{12,19}$/.test(cardNumber);
+                const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry);
+                const validCvv = /^\d{3,4}$/.test(cardCvv);
+
+                if (!cardholderName || !validCardNumber || !validExpiry || !validCvv) {
+                    billingMessage.textContent = "Please complete all payment fields with valid values.";
+                    return;
+                }
+
+                billingMessage.textContent = "Processing payment...";
+                payButton.disabled = true;
+
+                try {
+                    const paymentRef = push(ref(db, "billingHistory/" + currentUser.uid));
+                    const paidAt = new Date().toISOString();
+                    const maskedCardNumber = "****" + cardNumber.slice(-4);
+
+                    await set(paymentRef, {
+                        planId: currentSubscription.planId,
+                        planName: currentSubscription.planName,
+                        amount: currentSubscription.price,
+                        billingCycle: currentSubscription.billingCycle,
+                        maskedCardNumber: maskedCardNumber,
+                        paidAt: paidAt,
+                        status: "paid"
+                    });
+
+                    await update(ref(db, "users/" + currentUser.uid + "/subscription"), {
+                        status: "active",
+                        startDate: paidAt,
+                        latestPaymentId: paymentRef.key,
+                        paymentMethod: maskedCardNumber,
+                        updatedAt: paidAt
+                    });
+
+                    billingMessage.textContent = "Payment recorded successfully. Subscription is now active.";
+                    paymentStatusText.textContent = "Subscription active";
+                    currentSubscription = {
+                        ...currentSubscription,
+                        status: "active",
+                        startDate: paidAt,
+                        latestPaymentId: paymentRef.key,
+                        paymentMethod: maskedCardNumber,
+                        updatedAt: paidAt
+                    };
+                    form.reset();
+                } catch (error) {
+                    billingMessage.textContent = "Payment could not be saved: " + error.message;
+                    payButton.disabled = false;
+                }
+            });
+        </script>
     </body>
 </html>

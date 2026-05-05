@@ -23,51 +23,225 @@
         <div class="container">
             <div class="content">
                 <h1>Billing profile</h1>
-                <p>[Member name]</p>
-                <p>[Membership ID]</p>
-                <p>[Email]</p>
-                <p>[Phone]</p>
-                <p>[Address]</p>
+                <p id="memberName">Loading member name...</p>
+                <p id="membershipId">Loading membership ID...</p>
+                <p id="memberEmail">Loading email...</p>
+                <p id="memberPhone">Loading phone...</p>
+                <p id="memberAddress">Loading address...</p>
             </div>
 
             <div class="content">
                 <h2>Choose Your Membership Plan</h2>
-                <div class="planList">
-                    <div class="plan">
-                        <h2>BASIC PLAN</h2>
-                        <p>$10 / month</p>
-                        <ul>
-                            <li>Gym Access</li>
-                            <li>Locker Room</li>
-                        </ul>
-                        <button type="button">Select Plan</button>
-                    </div>
-                    <div class="plan">
-                        <h2>PRO PLAN</h2>
-                        <p>$25 / month</p>
-                        <ul>
-                            <li>Gym Access</li>
-                            <li>Locker Room</li>
-                            <li>Pool Access</li>
-                            <li>Sauna</li>
-                        </ul>
-                        <button type="button">Select Plan</button>
-                    </div>
-                    <div class="plan">
-                        <h2>ELITE PLAN</h2>
-                        <p>$50 / month</p>
-                        <ul>
-                            <li>Gym Access</li>
-                            <li>Locker Room</li>
-                            <li>Pool Access</li>
-                            <li>Sauna</li>
-                            <li>Trainer Support</li>
-                        </ul>
-                        <button type="button">Select Plan</button>
-                    </div>
-                </div>
-                <a href="memberBillingSubscriptions.html">Continue to billing</a>
+                <p id="selectedPlanStatus">Choose a plan to continue to billing.</p>
+                <div class="planList" id="planList"></div>
+                <a id="continueToBilling" href="memberBillingSubscriptions.html">Continue to billing</a>
+                <p id="profileMessage"></p>
             </div>
         </div>
+
+        <template id="planTemplate">
+            <div class="plan">
+                <h2 class="planName"></h2>
+                <p class="planPrice"></p>
+                <ul class="planFeatures"></ul>
+                <button type="button" class="selectPlanButton">Select Plan</button>
+            </div>
+        </template>
+
+        <script type="module">
+            import { auth, db } from './firebaseConfig.js';
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+            import { ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+            const defaultPlans = {
+                basic: {
+                    name: "BASIC PLAN",
+                    price: 10,
+                    billingCycle: "month",
+                    features: ["Gym Access", "Locker Room"]
+                },
+                pro: {
+                    name: "PRO PLAN",
+                    price: 25,
+                    billingCycle: "month",
+                    features: ["Gym Access", "Locker Room", "Pool Access", "Sauna"]
+                },
+                elite: {
+                    name: "ELITE PLAN",
+                    price: 50,
+                    billingCycle: "month",
+                    features: ["Gym Access", "Locker Room", "Pool Access", "Sauna", "Trainer Support"]
+                }
+            };
+
+            const memberName = document.getElementById("memberName");
+            const membershipId = document.getElementById("membershipId");
+            const memberEmail = document.getElementById("memberEmail");
+            const memberPhone = document.getElementById("memberPhone");
+            const memberAddress = document.getElementById("memberAddress");
+            const selectedPlanStatus = document.getElementById("selectedPlanStatus");
+            const continueToBilling = document.getElementById("continueToBilling");
+            const profileMessage = document.getElementById("profileMessage");
+            const planList = document.getElementById("planList");
+            const planTemplate = document.getElementById("planTemplate");
+
+            let currentUser = null;
+            let currentSubscription = null;
+            let plansCache = defaultPlans;
+
+            continueToBilling.style.pointerEvents = "none";
+            continueToBilling.style.opacity = "0.6";
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                currentUser = user;
+
+                try {
+                    const userRef = ref(db, "users/" + user.uid);
+                    const plansRef = ref(db, "plans");
+
+                    let [userSnapshot, plansSnapshot] = await Promise.all([
+                        get(userRef),
+                        get(plansRef)
+                    ]);
+
+                    if (!userSnapshot.exists()) {
+                        const initialUserData = buildBaseUserData(user);
+                        await set(userRef, initialUserData);
+                        userSnapshot = await get(userRef);
+                    }
+
+                    if (!plansSnapshot.exists()) {
+                        await set(plansRef, defaultPlans);
+                        plansSnapshot = await get(plansRef);
+                    }
+
+                    const userData = userSnapshot.exists() ? userSnapshot.val() : buildBaseUserData(user);
+                    const plans = plansSnapshot.exists() ? plansSnapshot.val() : defaultPlans;
+                    plansCache = plans;
+
+                    renderMemberDetails(user, userData);
+                    currentSubscription = userData.subscription || null;
+                    renderPlanStatus();
+                    renderPlans(plans);
+                } catch (error) {
+                    profileMessage.textContent = "Unable to load billing profile: " + error.message;
+                }
+            });
+
+            function renderMemberDetails(user, userData) {
+                const profile = userData.profile || {};
+                const fullName = profile.name || userData.name || "Member name not added";
+                const memberId = userData.membershipId || user.uid;
+                const phone = profile.phone || userData.phone || "Phone not added";
+                const address = profile.address || userData.address || "Address not added";
+
+                memberName.textContent = fullName;
+                membershipId.textContent = "Membership ID: " + memberId;
+                memberEmail.textContent = "Email: " + (userData.email || user.email || "No email found");
+                memberPhone.textContent = "Phone: " + phone;
+                memberAddress.textContent = "Address: " + address;
+            }
+
+            function buildBaseUserData(user) {
+                return {
+                    email: user.email || "",
+                    role: "member",
+                    membershipId: user.uid,
+                    profile: {
+                        name: "",
+                        phone: "",
+                        address: ""
+                    }
+                };
+            }
+
+            function renderPlanStatus() {
+                if (!currentSubscription || !currentSubscription.planId) {
+                    selectedPlanStatus.textContent = "Choose a plan to continue to billing.";
+                    continueToBilling.style.pointerEvents = "none";
+                    continueToBilling.style.opacity = "0.6";
+                    return;
+                }
+
+                const statusText = currentSubscription.status === "active"
+                    ? "Active subscription: "
+                    : "Selected plan: ";
+
+                selectedPlanStatus.textContent = statusText + currentSubscription.planName + " ($" + currentSubscription.price + "/" + currentSubscription.billingCycle + ")";
+                continueToBilling.style.pointerEvents = "auto";
+                continueToBilling.style.opacity = "1";
+            }
+
+            function renderPlans(plans) {
+                planList.innerHTML = "";
+
+                Object.entries(plans).forEach(([planId, planData]) => {
+                    const templateCopy = planTemplate.content.cloneNode(true);
+                    templateCopy.querySelector(".planName").textContent = planData.name;
+                    templateCopy.querySelector(".planPrice").textContent = "$" + planData.price + " / " + (planData.billingCycle || "month");
+
+                    const featuresList = templateCopy.querySelector(".planFeatures");
+                    (planData.features || []).forEach((feature) => {
+                        const item = document.createElement("li");
+                        item.textContent = feature;
+                        featuresList.appendChild(item);
+                    });
+
+                    const button = templateCopy.querySelector(".selectPlanButton");
+                    const isSelected = currentSubscription && currentSubscription.planId === planId;
+                    button.textContent = isSelected ? "Selected" : "Select Plan";
+
+                    button.addEventListener("click", async () => {
+                        await selectPlan(planId, planData);
+                    });
+
+                    planList.appendChild(templateCopy);
+                });
+            }
+
+            async function selectPlan(planId, planData) {
+                if (!currentUser) return;
+
+                profileMessage.textContent = "Saving selected plan...";
+
+                try {
+                    const subscriptionData = {
+                        planId: planId,
+                        planName: planData.name,
+                        price: planData.price,
+                        billingCycle: planData.billingCycle || "month",
+                        features: planData.features || [],
+                        status: currentSubscription
+                            && currentSubscription.status === "active"
+                            && currentSubscription.planId === planId
+                            ? "active"
+                            : "pending_payment",
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    await update(ref(db, "users/" + currentUser.uid), {
+                        email: currentUser.email || "",
+                        role: "member",
+                        membershipId: currentUser.uid
+                    });
+
+                    await update(ref(db, "users/" + currentUser.uid), {
+                        subscription: subscriptionData
+                    });
+
+                    currentSubscription = subscriptionData;
+                    renderPlanStatus();
+                    renderPlans(plansCache);
+                    profileMessage.textContent = "Plan saved. Continue to billing to complete subscription.";
+                } catch (error) {
+                    profileMessage.textContent = "Unable to save plan: " + error.message;
+                }
+            }
+        </script>
     </body>
 </html>
