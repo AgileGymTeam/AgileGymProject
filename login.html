@@ -72,7 +72,13 @@
 
     await set(ref(db, "users/" + user.uid), {
       email: email,
-      role: "member"
+      role: "member",
+      membershipId: user.uid,
+      profile: {
+        name: "",
+        phone: "",
+        address: ""
+      }
     });
 
     loginMessage.textContent = "User registered successfully";
