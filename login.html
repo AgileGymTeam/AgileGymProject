@@ -7,14 +7,80 @@
 
     <h2>Login Page</h2>
 
-    <form>
+    <form id="loginForm">
         <label>Email:</label><br>
-        <input type="email"><br><br>
+        <input type="email" id="email"><br><br>
 
         <label>Password:</label><br>
-        <input type="password"><br><br>
+        <input type="password" id="password"><br><br>
 
-        <button type="submit">login</button>
+        <button type="submit">Login</button>
+        <button type="button" id="registerBtn">Register</button>
+
+        <p id="loginMessage"></p>
+
     </form>
+
+    <script type = "module">
+        import { auth, db } from './firebaseConfig.js';
+        import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+        import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+    
+        const form = document.getElementById("loginForm");
+        const loginMessage = document.getElementById("loginMessage");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+             try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      loginMessage.textContent = "Login successful";
+
+      // fetch from database
+      const userRef = ref(db, "users/" + user.uid);
+      const snapshot = await get(userRef);
+
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+
+        if (userData.role === "staff") {
+          window.location.href = "StaffDashboard.html";
+        } else {
+          window.location.href = "memberDashboard.html";
+        }
+      } else {
+        loginMessage.textContent = "User not found in database";
+      }
+
+    } catch (error) {
+      loginMessage.textContent = "Error: " + error.message;
+    }
+  });
+
+  document.getElementById("registerBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    await set(ref(db, "users/" + user.uid), {
+      email: email,
+      role: "member"
+    });
+
+    loginMessage.textContent = "User registered successfully";
+
+  } catch (error) {
+    loginMessage.textContent = "Register error: " + error.message;
+  }
+});
+</script>
 </body>
 </html>
