@@ -5,62 +5,129 @@
         <meta charset="utf-8">
         <title>Class details</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <style>
+            .sideLayout {
+                display: flex;
+                gap: 20px;
+            }
+            .content, h1 {
+                background-color: #fff;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding: 15px;
+                margin: 5px;
+            }
+            h1 {
+                padding: 15px;
+                background-color: #e3e5ec;
+                margin: 10px;
+            }
+            label {
+                text-transform: uppercase;
+                color: #5e5e5e;
+                display: block;
+                margin: 5px;
+            }
+            .classDetails {
+                width: 30%;
+            }
+            .classForm{
+                width: 70%;
+                border-top: 3px solid #3a60c7;
+            }
+            #className, #classDate, #classTime, #classLength, #trainerName {
+                color: #3a60c7;
+                font-size: 18px;
+                margin-top: 5px;
+            }
+            input, select { 
+                width: 80%;
+                height: 25px;
+                margin-bottom: 10px;
+            }
+            select {
+                width: 81%;
+                height: 30px;
+                border: none;
+            }
+            button {
+                text-decoration: none;
+                border: none;
+                font-weight: 600;
+                padding: 8px 12px;
+                margin: 10px;
+                border-radius: 8px;
+            }
+            button:hover {
+                background: #eef2ff;
+                color: #263c7a;
+            }
+
+
+        </style>
     </head>
     <body>
-        <div class="container top">
-            <table class="navigation">
-                <tr>
-                    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                    <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
-                    <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Profile</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Logout</strong></a></td>
-                </tr>
-            </table>
-        </div>
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
+                <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
+                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+            </tr>
+        </table>
 
         <div class="container">
-            <div class="content">
-                <h1>Current class details:</h1>
-                <p id="className"></p>
-                <p id="classDate"></p>
-                <p id="classTime"></p>
-                <p id="classLength"></p>
-                <p id="trainerName"></p>
-            </div>
-
-            <div class="content">
-                <h2>Edit class details:</h2>
-                <form id="editClass">
+            <h1>Manage class details</h1>
+            <div class="sideLayout">
+                <div class="content classDetails">
+                    <h2>Current class details:</h2>
                     <label>Class name:</label>
-                        <input type="text" id="inputClassName">
-                    </br>
+                        <p id="className"></p>
                     <label>Date:</label>
-                        <input type="date" id="inputDate">
-                    </br>
+                        <p id="classDate"></p>
                     <label>Time start:</label>
-                        <input type="time" id="inputStartTime">
-                    </br>
-                    <label>Class length (hours):</label>
-                        <input type="number" id="inputLength">
-                    </br>
-                    <label>Assigned trainer:</label>
-                        <select id="assignTrainer">
-                            <option value="">Select a trainer</option>
-                        </select>
-                    </br>
-                    <button type="button" id="updateButton">Apply changes</button>
-                </form>
+                        <p id="classTime"></p>
+                    <label>Class length:</label>
+                        <p id="classLength"></p>
+                    <label>Assign trainer:</label>
+                        <p id="trainerName"></p>
+                </div>
+
+                <div class="content classForm">
+                    <h2>Edit class details:</h2>
+                    <form id="editClass">
+                        <label>Class name:</label>
+                            <input type="text" id="inputClassName">
+                        <br>
+                        <label>Date:</label>
+                            <input type="date" id="inputDate">
+                        <br>
+                        <label>Time start:</label>
+                            <input type="time" id="inputStartTime">
+                        <br>
+                        <label>Class length (hours):</label>
+                            <input type="number" id="inputLength">
+                        <br>
+                        <label>Assigned trainer:</label>
+                            <select id="assignTrainer">
+                                <option value="">Select a trainer</option>
+                            </select>
+                        <br>
+                        <button type="button" id="updateButton">Apply changes</button>
+                    </form>
+                </div>
             </div>
         </div>
 
         <script type="module">
             import { db } from './firebaseConfig.js'
-            import { ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+            import { ref, onValue, update, set, remove } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
             // catch params passed from class view page 
             const id = new URLSearchParams(window.location.search).get('id');
             const classRef = ref(db, 'classes/' + id);
+            const trainersRef = ref(db, 'trainers');
 
             let trainerCache = {};
             let classData = null;
@@ -91,8 +158,6 @@
             });
 
             // DISPLAY ALL TRAINERS IN DROPDOWN 
-
-            const trainersRef = ref(db, 'trainers');
 
             // create listener for all trainers
             onValue(trainersRef, (trainerSnapshot) => {
@@ -151,10 +216,22 @@
                 const hours = document.getElementById('inputLength').value;
                 if (hours) updatedData['time/hours'] = Number(hours);
 
+                // remove old trainer if trainer was switched
+                if (classData.trainer_ID && classData.trainer_ID !== trainerId) {
+                    const oldTrainerClassRef = ref(db, `trainers/${classData.trainer_ID}/classes/${id}`);
+                    remove(oldTrainerClassRef);
+                }
+
                 // update database using updatedData (avoids overwriting with empty strings)
                 update(classRef, updatedData);
+
+                // update classes for trainer
+                if (trainerId && id) {
+                    const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${id}`);
+
+                    set(trainerClassRef,  true);
+                }
             })
         </script>
-
     </body>
 </html>

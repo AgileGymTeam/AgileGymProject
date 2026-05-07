@@ -4,47 +4,76 @@
         <meta charset="utf-8">
         <title>View Classes</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <style>
+           #classList {
+                display: grid;
+                grid-template-columns: repeat(3,1fr);
+                gap: 10px;
+                align-items: start;
+            }
+            .classView, h1 {
+                background-color: #fff;
+                border-top: 3px solid #3a60c7;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding-bottom: 15px;
+                margin: 5px;
+            }
+            h1 {
+                padding: 15px;
+                border: none;
+                background-color: #e3e5ec;
+                margin: 10px;
+            }
+            label {
+                text-transform: uppercase;
+                color: #5e5e5e;
+                display: block;
+                margin: 5px;
+            }
+            .classDate, .classTime {
+                color: #3a60c7;
+            }
+            .classDetails {
+                text-decoration: none;
+                color: #374151;
+                font-weight: 600;
+                font-size: 20px;
+                padding: 8px 12px;
+                border-radius: 8px;
+            }
+
+            .classDetails:hover {
+                background: #eef2ff;
+                color: #263c7a;
+            }
+        </style>
     </head>
 
     <body>
-        <div class="container top">
-            <table class="navigation">
-                <tr>
-                    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
-                    <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Shop</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Profile</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Logout</strong></a></td>
-                </tr>
-            </table>
-        </div>
-
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+                <td class="navBox"><a href=""><strong>Shop</strong></a></td>
+                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
+                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+            </tr>
+        </table>
+        
         <div class="container">
-            <div class="filters">
-                <form id="classFilters">
-                    <label>Filters:</label>
-                    <select id="filterOption">
-                        <option value="1">Upcoming First</option>
-                        <option value="2">Upcoming Last</option>
-                        <option value="3">Alphabetical</option>
-                        <option value="4">Category</option>
-                    </select>
-                    <button type="submit">Apply Filters</button>
-                </form>
-            </div>
-            
-
+            <h1>Classes</h1>
             <template id="classTemplate">
                 <div class="classView">
                     <h2 class="className"></h2>
                     <p class="classDate"></p>
-                    <a class="classDetails">Click here to see details!</a>
+                    <a class="classDetails">View details</a>
                 </div>
             </template>
-
             <div id="classList"></div>
-
+            </div>
         </div>
 
         <script type="module">
@@ -56,7 +85,7 @@
             // set variables
             const list = document.getElementById('classList');
             const template = document.getElementById('classTemplate');
-            const classesRef = ref(db, 'classes')
+            const classesRef = ref(db, 'classes');
 
             // create real time listener
             onValue(classesRef, (snapshot) => {
