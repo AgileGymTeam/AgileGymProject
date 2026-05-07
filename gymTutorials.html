@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gym Tutorials</title>
+    <style>
+        .navigation {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #3838c4;
+        }
+        .navBox {
+            padding: 12px 18px;
+            text-align: center;
+        }
+        .navBox a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+        .navBox a:hover {
+            text-decoration: underline;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #0a1628;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #2d5da7;
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0a3a6e;
+            opacity: 0.8;
+        }
+        .button-outline {
+            background-color: white;
+            color: #0a1628;
+            border: 2px solid #0a1628;
+        }
+        .button-outline:hover {
+            background-color: #f0f0f0;
+        }
+        .tutorial {
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+        .tutorial h2 {
+            margin-top: 0;
+        }
+         .tutorial video {
+            width: 100%;
+            height: auto;
+        }
+        .tutorial iframe {
+            width: 100%;
+            height: 315px;
+        }
+         #machine-tutorials, #exercise-tutorials {
+            display: none;
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container top">
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+                <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+                <td class="navBox"><a href=""><strong>Profile</strong></a></td>
+                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+            </tr>  
+        </table>
+    </div>
+
+    <div class="container">
+        <h1>Gym Tutorials</h1>
+        <p>Welcome to our gym tutorials! Here you can find helpful videos on how to use our equipment and perform various exercises correctly. Click the buttons below to explore machine tutorials or exercise tutorials.</p>
+        <p>
+            <button onclick="showSelection('machines')">Machine Tutorials</button>
+            <button class="button-outline" onclick="showSelection('workouts')">Workout Tutorials</button>
+        </p>
+        <div id="machine-tutorials">
+            <h2>Machine Tutorials</h2>
+            <p>Learn how to use our gym machines safely and effectively with these step-by-step video guides.</p>
+
+            <div class="tutorial">
+                <h2>Treadmill Tutorial</h2>
+                <p>Great for cardiovascular exercise!</p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/76XnbF5DBFY?si=J9o80zSYPu65ZCBI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <p>How to use: Step on the side rails before starting. Begin with a slow speed and gradually increase. Always attach the safety clip. Cool down for 5 minutes before stopping.</p>
+            </div>
+
+            <div class="tutorial">
+                <h2>Elliptical Tutorial</h2>
+                <p>Perfect for low-impact cardio.</p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/YWfswVvOaiI?si=lrbFqT1dal1c9ujr" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                <p>How to use: Step on the pedals and grip the handles. Keep your back straight. Push and pull the handles in time with your legs. Start at a low resistance and build up gradually.</p>
+            </div>
+            <div class="tutorial">
+                <h2>Leg Press Machine Tutorial</h2>
+                <p>Build quad and glute strength.</p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/K5n2vg3oZa4?si=Ifb9m0W15aUPyMCw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            
+                <p>How to use: Set the seat so knees form a 90 degree angle. Place feet shoulder-width apart. Push through your heels. Do not lock out your knees at the top.</p>
+            </div>
+            <div class ="tutorial">
+                <h2>Rowing Machine Tutorial</h2>
+                <p>Full body cardio workout.</p>
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/bqVgDaMsK8w?si=2RxYMwlz2dL4q3rq" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>            
+                <p>How to use: Strap your feet in. Sit tall with a straight back. Push with your legs first, then pull the handle to your lower ribs. Return arms first, then lean forward, then bend knees.</p>
+            </div>
+        </div>
+
+        
+            <div id="exercise-tutorials">
+                <h2>Exercise Tutorials</h2>
+                <p>Learn proper techniques for common exercises with these instructional videos.</p>
+ 
+                <div class="tutorial">
+                    <h2>Squat Tutorial</h2>
+                    <p>The best lower body exercise.</p>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/my0tLDaWyDU?si=2ZEPKvULE_c7ARHK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                    
+                    <p>How to do it: Rest the bar on your upper traps. Feet shoulder width apart, toes slightly out. Brace your core and squat down until hips are below knees. Drive through your heels to stand.</p>
+                </div>
+ 
+                <div class="tutorial">
+                    <h2>Bench Press Tutorial</h2> 
+                    <p>Builds chest, shoulder and tricep strength.</p>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/gRVjAtPip0Y?si=ZJSx6f-h87zbS6x1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                    
+                    <p>How to do it: Lie flat on the bench with eyes under the bar. Grip slightly wider than shoulder width. Lower the bar slowly to your mid chest. Press back up and lock out at the top.</p>
+                </div>
+ 
+                <div class="tutorial">
+                    <h2>Deadlift Tutorial</h2>
+                    <p>Works almost every muscle in your body.</p>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/r4MzxtBKyNE?si=yRXREDNyVa8Zs-G7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                    
+                    <p>How to do it: Stand with feet hip width apart, bar over mid foot. Hinge at hips and grip the bar. Brace your core. Drive feet into the floor and keep the bar close to your body.</p>
+                </div>
+ 
+                <div class="tutorial">
+                    <h2>Pull Ups Tutorial</h2>
+                    <p>Builds back and bicep strength.</p>
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/GSYYXRjtkUQ?si=eeyES7wF-UZ29MDy" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>                    
+                    <p>How to do it: Grip the bar slightly wider than shoulder width. Hang at full extension. Pull your chin above the bar by driving elbows down. Lower slowly taking 2 seconds on the way down.</p>
+                </div>
+            </div>
+        </div>
+        <script>
+        function showSelection(selection) {
+            document.getElementById('machine-tutorials').style.display = 'none';
+            document.getElementById('exercise-tutorials').style.display = 'none';
+ 
+            if (selection === 'machines') {
+                document.getElementById('machine-tutorials').style.display = 'block';
+            } else if (selection === 'workouts') {
+                document.getElementById('exercise-tutorials').style.display = 'block';
+            }
+        }
+        </script>
+</body>
+</html>

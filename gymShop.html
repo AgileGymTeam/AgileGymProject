@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gym Shop</title>
+    <style>
+        .navigation {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #3838c4;
+        }
+        .navBox {
+            padding: 12px 18px;
+            text-align: center;
+        }
+        .navBox a {
+        color: white;
+        text-decoration: none;
+        font-size: 15px;
+        }
+        .navBox a:hover {
+        text-decoration: underline;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            color: #0066ff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+        }
+        .product {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .product h2 {
+            margin-top: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #285496;
+            color: #ffffff;
+            padding: 10px;
+            text-align: left;
+        }
+        td {
+            border-bottom: 1px solid #ccc;
+            padding: 10px;
+        }
+        tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+        button {
+            background-color: #0a1628;
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0a3a6e;
+            opacity: 0.8;
+        }
+        .btn-red {
+            background-color: #cc0000;
+        }
+        .btn-red:hover {
+            background-color: #990000;
+        }
+        .btn-outline {
+            background-color: white;
+            color: #0a1628;
+            border: 2px solid #0a1628;
+        }
+        .btn-outline:hover {
+            background-color: #f0f0f0;
+            color: white;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 360px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        label {
+            font-size: 14px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .summary-box {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        .order-box {
+            border: 1px solid #ccc;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+        #basket-section, #checkout-section, #orders-section {
+            margin-top: 20px;
+            display: none;
+        }
+       
+    </style>
+</head>
+<body>
+    <div class="container top">
+    <table class="navigation">
+        <tr>
+            <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+            <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
+            <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+            <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+            <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
+            <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+        </tr>
+    </table>
+</div>
+    <div class="container">
+        <h1>Gym Shop</h1>
+        <p>
+            <button onclick="showSelection('shop')">Shop</button>
+            <button class="btn-outline" onclick="showSelection('basket')">Basket (<span id="badge">0</span>)</button>
+            <button class="btn-outline" onclick="showSelection('orders')">My Orders</button>
+        </p>
+
+        <div id="shop-selection">
+            <h2>Products</h2>
+            <p>Welcome to the Gym Shop! Browse our selection of fitness products and equipment.</p>
+        
+
+        <div class="product">
+            <img src="images/dumbbells.jpg" alt="Dumbbells" width="200">
+            <h2>Dumbbells</h2>
+            <p>Set of 2, 10kg each</p>
+            <p>Price: £25.00</p>
+            <button onclick="addToBasket('Dumbbells', 25.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/yogaMat.jpg" alt="Yoga Mat" width="200">
+            <h2>Yoga Mat</h2>
+            <p>Non-slip, 6mm thickness</p>
+            <p>Price: £15.00</p>
+            <button onclick="addToBasket('Yoga Mat', 15.00)">Add to Basket</button>
+
+        </div>
+        <div class="product">
+            <img src="images/resistance.jpg" alt="Resistance Bands" width="200">
+            <h2>Resistance Bands</h2>
+            <p>Set of 5, varying resistance levels</p>
+            <p>Price: £20.00</p>
+            <button onclick="addToBasket('Resistance Bands', 20.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/gloves.jpg" alt="Gym Gloves" width="200">
+            <h2>Gym Gloves</h2>
+            <p>Small, Medium and Large available</p>
+            <p>Price: £15.00</p>
+            <button onclick="addToBasket('Gym Gloves', 15.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/bottle.jpg" alt="Water Bottle" width="200">
+            <h2>Water Bottle</h2>
+            <p>1 litre, BPA-free</p>
+            <p>Price: £10.00</p>
+            <button onclick="addToBasket('Water Bottle', 10.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/rope.jpg" alt="Jump Rope" width="200">
+            <h2>Jump Rope</h2>
+            <p>Adjustable length, comfortable handles</p>
+            <p>Price: £12.00</p>
+            <button onclick="addToBasket('Jump Rope', 12.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/shirt.jpg" alt="Gym T-shirt" width="200">
+            <h2>Gym T-shirt</h2>
+            <p>Black, sizes S, M, L</p>
+            <p>Price: £18.00</p>
+            <button onclick="addToBasket('Gym T-shirt', 18.00)">Add to Basket</button>
+        </div>
+        <div class="product">
+            <img src="images/weightlifting.jpg" alt="Weightlifting Belt" width="200">
+            <h2>Weightlifting Belt</h2>
+            <p>Supportive, adjustable size</p>
+            <p>Price: £30.00</p>
+            <button onclick="addToBasket('Weightlifting Belt', 30.00)">Add to Basket</button>
+        </div>
+    </div>
+    <div id="basket-section">
+    </div>
+    <div id="checkout-section">
+        <h2>Checkout</h2>
+        <div class="summary-box" id ="checkout-summary"></div>
+        <label>Full Name</label>
+        <input type="text" id="full-name" placeholder="Enter your full name"minlength="5" required>
+        <label>Email Address</label>
+        <input type="email" id="email-address" placeholder="Enter your email address" minlength="8" required>
+        <label>Shipping Address</label>
+        <input type="text" id="shipping-address" placeholder="Enter your shipping address">
+        <label>Card Number</label>
+        <input type="text" id="card-number" placeholder="Enter your card number" maxlength="12">
+        <br>
+        <button onclick="placeOrder()">Place Order</button>
+        <button class="btn-outline" onclick="showSelection('basket')">Cancel</button>
+    </div>
+    <div id="orders-section">
+        <h2>My Orders</h2>
+        <div id="orders-content"><p>No orders to display.</p></div>
+        <button class="btn-outline" onclick="showSelection('shop')">Back to Shop</button>
+    </div>
+    <script>
+        let basket = [];
+        let orders = [];
+        let orderCount = 1;
+
+        function showSelection(selection) {
+            document.getElementById('shop-selection').style.display = 'none';
+            document.getElementById('basket-section').style.display = 'none';
+            document.getElementById('checkout-section').style.display = 'none';
+            document.getElementById('orders-section').style.display = 'none';
+
+            if (selection === 'shop') {
+                document.getElementById('shop-selection').style.display = 'block';
+            } else if (selection === 'basket') {
+                updateBasket();
+                document.getElementById('basket-section').style.display = 'block';
+            } else if (selection === 'checkout') {
+                updateCheckoutSummary();
+                document.getElementById('checkout-section').style.display = 'block';
+            } else if (selection === 'orders') {
+                updateOrders();
+                document.getElementById('orders-section').style.display = 'block';
+            }
+        }
+
+        function addToBasket(productName, price) {
+            const existingItem = basket.find(item => item.name === productName);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                basket.push({ name: productName, price: price, quantity: 1 });
+            }
+            alert(`${productName} added to basket!`);
+            updateBadge();
+        }
+
+        function updateBadge() {
+            const totalItems = basket.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('badge').textContent = totalItems;
+        }
+
+        function updateBasket() {
+            const basketSection = document.getElementById('basket-section');
+            if (basket.length === 0) {
+                basketSection.innerHTML = '<p>Your Basket</p><p>Your basket is empty.</p>';
+                return;
+            }
+            let html = '<h2>Your Basket</h2><table><tr><th>Product</th><th>Price</th><th>Quantity</th><th>Total</th></tr>';
+            basket.forEach(item => {
+                html += `<tr>
+                <td>${item.name}</td>
+                <td>£${item.price.toFixed(2)}</td>
+                <td>
+                    <button onclick="updateQuantity('${item.name}', -1)">-</button>
+                    ${item.quantity}
+                    <button onclick="updateQuantity('${item.name}', 1)">+</button>
+                </td>
+                <td>£${(item.price * item.quantity).toFixed(2)}</td>
+                <td><button class="btn-red" onclick="removeFromBasket('${item.name}')">Remove</button></td>
+                </tr>`;
+            });
+            const totalPrice = basket.reduce((total, item) => total + item.price * item.quantity, 0);
+            html += `</table><p><strong>Total: £${totalPrice.toFixed(2)}</strong></p>`;
+            html += '<button onclick="showSelection(\'checkout\')">Proceed to Checkout</button>';
+            html += '<button class="btn-outline" onclick="showSelection(\'shop\')">Continue Shopping</button>';
+            basketSection.innerHTML = html;
+        }
+        function updateQuantity(productName, change) {
+            const item = basket.find(item => item.name === productName);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromBasket(productName);
+                } else {
+                    updateBasket();
+                    updateBadge();
+                }
+            }
+        }
+        function removeFromBasket(productName) {
+            basket = basket.filter(item => item.name !== productName);
+            updateBasket();
+            updateBadge();
+        }
+        function updateCheckoutSummary() {
+            const summaryBox = document.getElementById('checkout-summary');
+            if (basket.length === 0) {
+                summaryBox.innerHTML = '<p>Your basket is empty.</p>';
+                return;
+            }
+            let html = '<h3>Order Summary</h3><ul>';
+            basket.forEach(item => {
+                html += `<li>${item.quantity} x ${item.name} - £${(item.price * item.quantity).toFixed(2)}</li>`;
+            });
+            const totalPrice = basket.reduce((total, item) => total + item.price * item.quantity, 0);
+            html += `</ul><p><strong>Total: £${totalPrice.toFixed(2)}</strong></p>`;
+            summaryBox.innerHTML = html;
+        }
+        function placeOrder() {
+            const fullName = document.getElementById('full-name').value.trim();
+            const emailAddress = document.getElementById('email-address').value.trim();
+            const shippingAddress = document.getElementById('shipping-address').value.trim();
+            const cardNumber = document.getElementById('card-number').value.trim();
+
+            if (fullName.length < 5 || emailAddress.length < 8) {
+                alert('Please enter valid name and email address.');
+                return;
+            }
+            const order = {
+                id: orderCount++,
+                items: [...basket],
+                total: basket.reduce((total, item) => total + item.price * item.quantity, 0),
+                fullName,
+                emailAddress,
+                shippingAddress,
+                cardNumber
+            };
+            orders.push(order);
+            basket = [];
+            updateBadge();
+            alert('Order placed successfully!');
+            showSelection('orders');
+        }
+        function updateOrders() {
+            const ordersContent = document.getElementById('orders-content');
+            if (orders.length === 0) {
+                ordersContent.innerHTML = '<p>No orders to display.</p>';
+                return;
+            }
+            let html = '';
+            orders.forEach(order => {
+                html += `<div class="order-box">
+                <h3>Order #${order.id}</h3>
+                <p><strong>Name:</strong> ${order.fullName}</p>
+                <p><strong>Email:</strong> ${order.emailAddress}</p>
+                <p><strong>Shipping Address:</strong> ${order.shippingAddress}</p>
+                <p><strong>Total:</strong> £${order.total.toFixed(2)}</p>
+                <h4>Items:</h4><ul>`;
+                order.items.forEach(item => {
+                    html += `<li>${item.quantity} x ${item.name} - £${(item.price * item.quantity).toFixed(2)}</li>`;
+                });
+                html += '</ul></div>';
+            });
+            ordersContent.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
