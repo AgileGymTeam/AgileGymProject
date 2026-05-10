@@ -4,25 +4,91 @@
         <meta charset="utf-8">
         <title>Subscription Payment</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <style>
+            .content {
+                background-color: #fff;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding: 15px;
+                margin: 5px;
+            }
+            h1 {
+                background-color: #e3e5ec;
+                text-align: center;
+                padding: 15px;
+                margin: 10px;
+            }
+            form {
+                display: grid;
+                gap: 12px;
+                text-align: left;
+            }
+            label {
+                text-transform: uppercase;
+                color: #5e5e5e;
+                display: block;
+                margin-bottom: 5px;
+            }
+            input {
+                width: 100%;
+                box-sizing: border-box;
+                padding: 10px;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font: inherit;
+            }
+            .paymentRow {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .orderSummary {
+                background-color: #f5f7fb;
+                border-top: 3px solid #3a60c7;
+                padding: 15px;
+                text-align: center;
+            }
+            #billingMemberName, #billingMemberEmail, #selectedPlanName, #selectedPlanPrice, #paymentStatusText {
+                color: #3a60c7;
+            }
+            button, a {
+                display: inline-block;
+                text-decoration: none;
+                border: none;
+                color: #374151;
+                font-weight: 600;
+                font-size: 16px;
+                padding: 8px 12px;
+                margin-top: 10px;
+                border-radius: 8px;
+                background: transparent;
+            }
+            button:hover, a:hover {
+                background: #eef2ff;
+                color: #263c7a;
+            }
+            #billingMessage {
+                font-weight: bold;
+            }
+        </style>
     </head>
 
     <body>
-        <div class="container top">
-            <table class="navigation">
-                <tr>
-                    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
-                    <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Shop</strong></a></td>
-                    <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Logout</strong></a></td>
-                </tr>
-            </table>
-        </div>
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+                <td class="navBox"><a href=""><strong>Shop</strong></a></td>
+                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
+                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+            </tr>
+        </table>
 
         <div class="container">
+            <h1>Subscription Payment</h1>
             <div class="content">
-                <h1>Subscription Payment</h1>
                 <p id="billingMemberName">Loading member details...</p>
                 <p id="billingMemberEmail"></p>
                 <form id="subscriptionPayment">
