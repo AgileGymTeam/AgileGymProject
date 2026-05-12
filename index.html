@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: Arial, sans-serif;
+    }
+
+    .topNav {
+      background-color: white;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 15px 40px;
+    }
+
+    .topNav h2 {
+      color: #1e3a8a;
+      margin: 0;
+    }
+
+    .loginBox {
+      max-width: 450px;
+      margin: 80px auto;
+      background-color: white;
+      border-top: 3px solid #3a60c7;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .loginBox form {
+      display: grid;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .loginBox label {
+      text-transform: uppercase;
+      color: #5e5e5e;
+      font-weight: bold;
+    }
+
+    .loginBox input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+    }
+
+    .buttonRow {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .buttonRow button {
+      border: none;
+      color: #374151;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .buttonRow button:hover {
+      background-color: #eef2ff;
+      color: #263c7a;
+    }
+
+    #loginMessage {
+      color: #3a60c7;
+      text-align: center;
+    }
+
+    .forgotPasswordRow {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .forgotPasswordRow a {
+      font-size: 14px;
+      font-weight: normal;
+      color: #3b5bdb;
+      text-decoration: none;
+    }
+
+    .forgotPasswordRow a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topNav">
+    <h2>[Website name]</h2>
+  </div>
+
+  <div class="loginBox" id="loginBox">
+    <h1>Login Page</h1>
+
+    <form id="loginForm">
+
+      <label>Email:</label>
+      <input type="email" id="email">
+
+      <label>Password:</label>
+      <input type="password" id="password">
+
+      <div class="buttonRow">
+        <button type="submit">Login</button>
+
+        <button type="button" onclick="showRegister()">
+          Register
+        </button>
+      </div>
+
+      <div class="forgotPasswordRow">
+        <a id="forgotPassword">Forgot password?</a>
+      </div>
+      <p id="loginMessage"></p>
+
+    </form>
+  </div>
+
+  <div class="loginBox" id="registerBox" style="display:none;">
+
+    <h1>Register</h1>
+
+    <form id="registerForm">
+
+      <label>First Name:</label>
+      <input type="text" id="firstName">
+
+      <label>Email:</label>
+      <input type="email" id="registerEmail">
+
+      <label>Password:</label>
+      <input type="password" id="registerPassword">
+
+      <div class="buttonRow">
+        <button type="submit">Create Account</button>
+
+        <button type="button" onclick="showLogin()">
+          Back to Login
+        </button>
+      </div>
+
+      <p id="registerMessage"></p>
+
+    </form>
+
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebaseConfig.js';
+    import {
+      signInWithEmailAndPassword,
+      sendPasswordResetEmail,
+    } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+    import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+
+    window.showRegister = function () {
+
+      document.getElementById("loginBox").style.display = "none";
+
+      document.getElementById("registerBox").style.display = "block";
+    };
+
+    window.showLogin = function () {
+
+      document.getElementById("registerBox").style.display = "none";
+
+      document.getElementById("loginBox").style.display = "block";
+    };
+
+    document.getElementById("forgotPassword").addEventListener("click", async () => {
+
+      const email =
+        document.getElementById("email").value;
+
+      if (!email) {
+        loginMessage.textContent =
+          "Please enter your email first.";
+        return;
+      }
+
+      try {
+
+        await sendPasswordResetEmail(auth, email);
+
+        loginMessage.textContent =
+          "Password reset email sent.";
+
+      } catch (error) {
+
+        loginMessage.textContent =
+          "Unable to send reset email.";
+      }
+    });
+
+
+    const form = document.getElementById("loginForm");
+    const loginMessage = document.getElementById("loginMessage");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        loginMessage.textContent = "Login successful";
+
+        // fetch from database
+        const userRef = ref(db, "users/" + user.uid);
+        const snapshot = await get(userRef);
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+
+          if (userData.role === "staff") {
+            window.location.href = "StaffDashboard.html";
+          } else {
+            window.location.href = "memberDashboard.html";
+          }
+        } else {
+          loginMessage.textContent = "User not found in database";
+        }
+
+      } catch (error) {
+        if (error.code === "auth/invalid-email" || error.code === "auth/missing-password") {
+          loginMessage.textContent = "Please enter your login details.";
+        } else if (error.code === "auth/invalid-credential") {
+          loginMessage.textContent = "Email or password is incorrect.";
+        } else {
+          loginMessage.textContent = "Login failed. Please try again.";
+        }
+
+        loginMessage.style.color = "red";
+      }
+    });
+    const registerForm = document.getElementById("registerForm");
+
+    const registerMessage =
+      document.getElementById("registerMessage");
+
+    registerForm.addEventListener("submit", async (e) => {
+
+      e.preventDefault();
+
+      const firstName =
+        document.getElementById("firstName").value;
+
+      const email =
+        document.getElementById("registerEmail").value;
+
+      const password =
+        document.getElementById("registerPassword").value;
+
+      try {
+
+        const userCredential =
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        const user = userCredential.user;
+
+        await set(ref(db, "users/" + user.uid), {
+
+          email: email,
+
+          role: "member",
+
+          profile: {
+            firstName: firstName,
+            phone: "",
+            address: ""
+          }
+
+        });
+
+        registerMessage.textContent =
+          "Registration successful";
+
+        setTimeout(() => {
+
+          showLogin();
+
+        }, 1000);
+
+      }
+
+      catch (error) {
+        if (error.code === "auth/email-already-in-use") {
+          registerMessage.textContent = "This account is already registered.";
+        } else if (error.code === "auth/invalid-email") {
+          registerMessage.textContent = "Please enter a valid email address.";
+        } else if (error.code === "auth/weak-password") {
+          registerMessage.textContent = "Password must be at least 6 characters.";
+        } else {
+          registerMessage.textContent = "Registration failed. Please try again.";
+        }
+
+        registerMessage.style.color = "red";
+      }
+    });
+  </script>
+</body>
+
+</html>

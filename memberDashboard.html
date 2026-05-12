@@ -1,25 +1,204 @@
 <!DOCTYPE html>
 <html>
-    <title>Member Dashboard</title>
+
+<head>
+  <title>Member Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .dashboardPage {
+      max-width: 1000px;
+      margin: 50px auto;
+    }
+
+    .welcomeSection {
+      margin-bottom: 30px;
+    }
+
+    .welcomeSection h1 {
+      font-size: 42px;
+      margin-bottom: 8px;
+    }
+
+    .welcomeSection p {
+      color: #5e5e5e;
+    }
+
+    .quickActions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    .actionCard {
+      background: white;
+      border-top: 3px solid #3a60c7;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 30px;
+      text-align: center;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 25px;
+    }
+
+    .circleIcon {
+      background: #eef2ff;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 28px;
+    }
+
+    .actionCard a {
+      margin-bottom: 15px;
+    }
+
+    .actionCard a,
+    .classesPreview a {
+      display: inline-block;
+      text-decoration: none;
+      color: #374151;
+      font-weight: 600;
+      font-size: 18px;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    .actionCard a:hover,
+    .classesPreview a:hover {
+      background: #eef2ff;
+      color: #263c7a;
+    }
+
+    .classesPreview {
+      background: white;
+      border-top: 3px solid #3a60c7;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 30px;
+      text-align: center;
+      margin-top: 35px;
+    }
+
+    .logoutSection {
+      text-align: center;
+      margin-top: 35px;
+      margin-bottom: 40px;
+    }
+
+    #logoutBtn {
+      background: #eef2ff;
+      color: #263c7a;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    #logoutBtn:hover {
+      background: #dfe6ff;
+    }
+  </style>
 </head>
+
 <body>
 
-    <h2>Welcome Member</h2>
+  <div class="dashboardPage">
 
-    <div class="container top">
-  <table class="navigation">
-    <tr>
-    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-    <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
-    <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-    <td class="navBox"><a href="memberProfile.html"><strong>Shop</strong></a></td>
-    <td class="navBox"><a href="memberProfile.html"><strong>Subscriptions</strong></a></td>
-    <td class="navBox"><a href="login.html"><strong>Logout</strong></a></td>
-    </tr>
-  </table>
-</div>
+    <div class="welcomeSection">
+      <h1 id="welcomeMessage">Hello Member!</h1>
+      <p>Welcome back to your gym dashboard.</p>
+    </div>
 
-     <p>This is your dashboard.</p>
-     
+    <div class="quickActions">
+
+      <div class="actionCard">
+        <div class="circleIcon">💳︎</div>
+        <h2>Membership</h2>
+        <p>View your profile, membership plan, and billing details.</p>
+        <a href="memberProfile.html">View Membership</a>
+      </div>
+
+      <div class="actionCard">
+        <div class="circleIcon">🏋️</div>
+        <h2>Tutorials</h2>
+        <p>Access workout tutorials and fitness guidance.</p>
+        <a href="gymTutorials.html">View Tutorials</a>
+      </div>
+
+      <div class="actionCard">
+        <div class="circleIcon">🛒</div>
+        <h2>Shop</h2>
+        <p>Browse gym products and fitness equipment.</p>
+        <a href="gymShop.html">Visit Shop</a>
+      </div>
+
+    </div>
+
+    <div class="classesPreview">
+      <h2>Upcoming Classes</h2>
+      <p>View upcoming classes and sign up for sessions.</p>
+      <a href="memberClassView.html">View Upcoming Classes</a>
+
+      <div id="signedUpClasses">
+        <p>No signed up classes shown yet.</p>
+      </div>
+    </div>
+
+    <div class="logoutSection">
+      <button id="logoutBtn">Logout</button>
+    </div>
+
+  </div>
+  <script type="module">
+
+    import { auth, db } from './firebaseConfig.js';
+
+    import {
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+    import {
+      ref,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+
+    onAuthStateChanged(auth, async (user) => {
+
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      const userRef = ref(db, "users/" + user.uid);
+
+      const snapshot = await get(userRef);
+
+      if (snapshot.exists()) {
+
+        const userData = snapshot.val();
+
+        const firstName =
+          userData.profile?.firstName || "Member";
+
+        document.getElementById("welcomeMessage").textContent = "Hello " + firstName + "!";
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+  </script>
 </body>
+
 </html>
