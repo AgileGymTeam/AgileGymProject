@@ -233,10 +233,11 @@
 
           if (userData.role === "staff") {
             window.location.href = "StaffDashboard.html";
+          } else if (userData.role === "trainer") {
+            window.location.href = "trainerDashboard.html";
           } else {
             window.location.href = "memberDashboard.html";
           }
-        } else {
           loginMessage.textContent = "User not found in database";
         }
 
