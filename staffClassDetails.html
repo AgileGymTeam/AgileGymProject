@@ -63,7 +63,10 @@
                 background: #eef2ff;
                 color: #263c7a;
             }
-
+            #deleteClassButton:hover {
+                background: #ffeeee;
+                color: #7a2626;                
+            }
 
         </style>
     </head>
@@ -91,6 +94,9 @@
                         <p id="classLength"></p>
                     <label>Assign trainer:</label>
                         <p id="trainerName"></p>
+                    <form id="deleteClass">
+                        <button type='submit' id="deleteClassButton">Delete class</button>
+                    </form>
                 </div>
 
                 <div class="content classForm">
@@ -201,6 +207,20 @@
                     const name = trainerCache?.[classData.trainer_ID]?.profile?.firstName || 'No trainer assigned';
                     document.getElementById('trainerName').textContent = name;
                 }
+
+                // DELETE CLASS BUTTON
+
+                // button event listener for when button is clicked
+                const deleteButton = document.getElementById('deleteClass');
+                deleteButton.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    // delete class from database if user confirms
+                    if (confirm('Class will be deleted from system. Continue?')) {
+                        await remove(ref(db, `classes/${id}`));
+                        window.location.replace('staffClassView.html');
+                    }
+                })
 
                 // UPDATING DATABASE
 
