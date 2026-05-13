@@ -17,7 +17,7 @@
                 border-top: 3px solid #3a60c7;
                 border-bottom: 2px solid #e5e7eb;
                 text-align: center;
-                padding: 1px;
+                padding-bottom: 20px;
                 margin: 5px;
             }
             h1 {
@@ -32,11 +32,17 @@
                 display: block;
                 margin: 5px;
             }
-            .trainerClasses, .trainerHours {
-                display: grid;
-                gap: 5px;
-                color: #3a60c7;
-                margin: 10px;
+            .trainerDetails {
+                text-decoration: none;
+                color: #374151;
+                font-weight: 600;
+                font-size: 20px;
+                padding: 8px 12px;
+                border-radius: 8px;
+            }
+            .trainerDetails:hover {
+                background: #eef2ff;
+                color: #263c7a;
             }
         </style>
     </head>
@@ -47,7 +53,6 @@
                 <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
                 <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
                 <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
             </tr>
         </table>
 
@@ -56,10 +61,7 @@
             <template id="trainerTemplate">
                 <div class="trainerView">
                     <h2 class="trainerName"></h2>
-                    <label>Assigned classes:</label>
-                        <div class="trainerClasses"></div>
-                    <label>Total hours:</label>
-                        <p class="trainerHours"></p>
+                    <a class="trainerDetails">Manage trainer</a>
                 </div>               
             </template>
 
@@ -68,21 +70,23 @@
         </div>
 
         <script type="module">
-            import { db } from './firebaseConfig.js'
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
             import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-            // DISPLAY ALL TRAINERS IN A LIST
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
 
-            // set variables
-            const list = document.getElementById('trainerList');
-            const template = document.getElementById('trainerTemplate');
-            const trainersRef = ref(db, 'trainers');
-            const classesRef = ref(db, 'classes');
+                // DISPLAY ALL TRAINERS IN A LIST
 
-            let allClasses = {};
-            let classesLoaded = false;
+                // set variables
+                const list = document.getElementById('trainerList');
+                const template = document.getElementById('trainerTemplate');
+                const trainersRef = ref(db, 'trainers')
 
-            function loadTrainers() {
                 // create real time listener
                 onValue(trainersRef, (snapshot) => {
                     // clear list before re-render
@@ -100,55 +104,19 @@
                     // loop over each trainer
                     for (let key in data) {
                         const trainerData = data[key];
-                        let totalHours = 0;
 
                         // make copy of template
                         const templateCopy = template.content.cloneNode(true);
 
-                        // fill in template with trainer details
+                        // fill in template with class details
                         templateCopy.querySelector('.trainerName').textContent = trainerData.name;
-                        
-                        // add classes
-                        const classesContainer = templateCopy.querySelector('.trainerClasses');
-                        if (trainerData.classes) {
-                            
-
-                            Object.keys(trainerData.classes).forEach(classId => {
-
-                                const classData = allClasses[classId];
-
-                                if (!classData) return;
-
-                                // add class hours 
-                                totalHours += classData.time.hours;
-
-
-                                // create tag element
-                                const classTag = document.createElement('span');
-                                classTag.textContent = classData.name;
-                                classTag.classList.add('classTag');
-
-                                // add to container
-                                classesContainer.appendChild(classTag);
-                            });
-                        }
-
-                        // add final total hours to template
-                        templateCopy.querySelector('.trainerHours').textContent = totalHours;
+                         // pass trainer id as a parameter to next page
+                        templateCopy.querySelector('.trainerDetails').href = `staffTrainerDetails.html?id=${key}`;
 
                         // add to list
                         list.appendChild(templateCopy);
                     }
                 });
-            }
-
-            // classes snapshot
-            onValue(classesRef, (snapshot) => {
-                allClasses = snapshot.val() || {};
-
-                // ensure classes load before trainer snapshot
-                classesLoaded = true;
-                loadTrainers();
             });
         </script> 
     </body>

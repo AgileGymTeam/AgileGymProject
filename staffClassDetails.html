@@ -70,10 +70,9 @@
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="StaffDashboard.html"><strong>[Website name]</strong></a></td>
                 <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
                 <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
             </tr>
         </table>
 
@@ -114,124 +113,134 @@
                                 <option value="">Select a trainer</option>
                             </select>
                         <br>
-                        <button type="button" id="updateButton">Apply changes</button>
+                        <button type="submit" id="updateButton">Apply changes</button>
                     </form>
                 </div>
             </div>
         </div>
 
         <script type="module">
-            import { db } from './firebaseConfig.js'
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
             import { ref, onValue, update, set, remove } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-            // catch params passed from class view page 
-            const id = new URLSearchParams(window.location.search).get('id');
-            const classRef = ref(db, 'classes/' + id);
-            const trainersRef = ref(db, 'trainers');
+            // AUTHORISATION
 
-            let trainerCache = {};
-            let classData = null;
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
 
-            // DISPLAY CLASS DETAILS FROM DATABASE
+                // catch params passed from class view page 
+                const id = new URLSearchParams(window.location.search).get('id');
+                const classRef = ref(db, `classes/${id}`);
+                const trainersRef = ref(db, 'trainers');
 
-            // create real time listener
-            onValue(classRef, (classSnapshot) => {
+                let trainerCache = {};
+                let classData = null;
 
-                // get class data snapshot
-                classData = classSnapshot.val();
+                // DISPLAY CLASS DETAILS FROM DATABASE
 
-                // return function if no data
-                if (!classData) return;
+                // create real time listener
+                onValue(classRef, (classSnapshot) => {
 
-                // fill in class details from database
-                document.getElementById('className').textContent = classData.name;
-                document.getElementById('classDate').textContent = classData.date;
-                document.getElementById('classTime').textContent = classData.time.start;
-                if (classData.time.hours <= 1) {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hour';
-                } else {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hours';
-                };
-                
-                // render the trainers name
-                renderTrainerName(classData);
-            });
+                    // get class data snapshot
+                    classData = classSnapshot.val();
 
-            // DISPLAY ALL TRAINERS IN DROPDOWN 
+                    // return function if no data
+                    if (!classData) return;
 
-            // create listener for all trainers
-            onValue(trainersRef, (trainerSnapshot) => {
-
-                // get snapshot of all trainers and add to trainers cache
-                trainerCache = trainerSnapshot.val();
-                const assign = document.getElementById('assignTrainer');
-
-                // return if empty
-                if (!trainerCache) return;
-
-                // clear old trainer options but keep placeholder (avoids duplicates)
-                assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
-
-                // append each trainers id and name to dropdown options
-                Object.entries(trainerCache).forEach(([id, trainer]) => {
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = trainer.name;
-                    assign.appendChild(option);
+                    // fill in class details from database
+                    document.getElementById('className').textContent = classData.name;
+                    document.getElementById('classDate').textContent = classData.date;
+                    document.getElementById('classTime').textContent = classData.time.start;
+                    if (classData.time.hours <= 1) {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hour';
+                    } else {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hours';
+                    };
+                    
+                    // render the trainers name
+                    renderTrainerName(classData);
                 });
 
-                // call render function again incase name updated
-                renderTrainerName();
-            }) 
+                // DISPLAY ALL TRAINERS IN DROPDOWN 
 
-            // function to render the trainers name in details
-            function renderTrainerName() {
-                if (!classData) return;
+                // create listener for all trainers
+                onValue(trainersRef, (trainerSnapshot) => {
 
-                const name = trainerCache?.[classData.trainer_ID]?.name || 'Loading...';
-                document.getElementById('trainerName').textContent = name;
-            }
+                    // get snapshot of all trainers and add to trainers cache
+                    trainerCache = trainerSnapshot.val();
+                    const assign = document.getElementById('assignTrainer');
 
-            // UPDATING DATABASE
+                    // return if empty
+                    if (!trainerCache) return;
 
-            // add button event listener to update when button is clicked
-            const btn = document.getElementById('updateButton');
-            btn.addEventListener('click', () => {
-     
-                // store only values that change in updatedData
-                const updatedData = {}
+                    // clear old trainer options but keep placeholder (avoids duplicates)
+                    assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
 
-                const name = document.getElementById('inputClassName').value;
-                if (name) updatedData.name = name;
+                    // append each trainers id and name to dropdown options
+                    Object.entries(trainerCache).forEach(([id, trainer]) => {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = trainer.name;
+                        assign.appendChild(option);
+                    });
 
-                const date = document.getElementById('inputDate').value;
-                if (date) updatedData.date = date;
+                    // call render function again incase name updated
+                    renderTrainerName();
+                }) 
 
-                const trainerId = document.getElementById('assignTrainer').value;
-                if (trainerId) updatedData.trainer_ID = trainerId;
+                // function to render the trainers name in details
+                function renderTrainerName() {
+                    if (!classData) return;
 
-                const startTime = document.getElementById('inputStartTime').value;
-                if (startTime) updatedData['time/start'] = startTime;
-
-                const hours = document.getElementById('inputLength').value;
-                if (hours) updatedData['time/hours'] = Number(hours);
-
-                // remove old trainer if trainer was switched
-                if (classData.trainer_ID && classData.trainer_ID !== trainerId) {
-                    const oldTrainerClassRef = ref(db, `trainers/${classData.trainer_ID}/classes/${id}`);
-                    remove(oldTrainerClassRef);
+                    const name = trainerCache?.[classData.trainer_ID]?.name || 'Loading...';
+                    document.getElementById('trainerName').textContent = name;
                 }
 
-                // update database using updatedData (avoids overwriting with empty strings)
-                update(classRef, updatedData);
+                // UPDATING DATABASE
 
-                // update classes for trainer
-                if (trainerId && id) {
-                    const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${id}`);
+                // add button event listener to update when button is clicked
+                const btn = document.getElementById('updateButton');
+                btn.addEventListener('submit', () => {
+        
+                    // store only values that change in updatedData
+                    const updatedData = {}
 
-                    set(trainerClassRef,  true);
-                }
-            })
+                    const name = document.getElementById('inputClassName').value;
+                    if (name) updatedData.name = name;
+
+                    const date = document.getElementById('inputDate').value;
+                    if (date) updatedData.date = date;
+
+                    const trainerId = document.getElementById('assignTrainer').value;
+                    if (trainerId) updatedData.trainer_ID = trainerId;
+
+                    const startTime = document.getElementById('inputStartTime').value;
+                    if (startTime) updatedData['time/start'] = startTime;
+
+                    const hours = document.getElementById('inputLength').value;
+                    if (hours) updatedData['time/hours'] = Number(hours);
+
+                    // remove old trainer if trainer was switched
+                    if (classData.trainer_ID && classData.trainer_ID !== trainerId) {
+                        const oldTrainerClassRef = ref(db, `trainers/${classData.trainer_ID}/classes/${id}`);
+                        remove(oldTrainerClassRef);
+                    }
+
+                    // update database using updatedData (avoids overwriting with empty strings)
+                    update(classRef, updatedData);
+
+                    // update classes for trainer
+                    if (trainerId && id) {
+                        const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${id}`);
+
+                        set(trainerClassRef,  true);
+                    }
+                });
+            });
         </script>
     </body>
 </html>

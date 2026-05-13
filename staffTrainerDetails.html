@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Trainer details</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <style>
+            .sideLayout {
+                display: flex;
+                gap: 20px;
+            }
+            .content, h1 {
+                background-color: #fff;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding: 15px;
+                margin: 5px;
+            }
+            h1 {
+                padding: 15px;
+                background-color: #e3e5ec;
+                margin: 10px;
+            }
+            label {
+                text-transform: uppercase;
+                color: #5e5e5e;
+                display: block;
+                margin: 5px;
+            }
+            #trainerHours, .classDate, .classTime {
+                color: #3a60c7;
+            }
+            .trainerDetails {
+                width: 30%;
+            }
+            .classSection {
+                width: 70%
+            }
+            .classTitle {
+                text-align: center;
+                margin-bottom: 15px;
+            }
+            .classList {
+                display: grid;
+                grid-template-columns: repeat(3,1fr);
+                gap: 10px;
+                align-items: start;
+            }
+            .classView {
+                background-color: #fff;
+                border-top: 3px solid #3a60c7;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding-bottom: 20px;
+                margin: 5px;
+            }
+            .classLink {
+                text-decoration: none;
+                color: #374151;
+                font-weight: 600;
+                font-size: 18px;
+                padding: 8px 12px;
+                border-radius: 8px;
+            }
+            .classLink:hover {
+                background: #eef2ff;
+                color: #263c7a;
+            }
+        </style>
+    </head>
+
+    <body>
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
+                <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
+            </tr>
+        </table>
+
+        <div class="container">
+            <h1>Trainer details</h1>
+            <div class="sideLayout">
+                <div class="content trainerDetails">
+                    <h2 id="trainerName"></h2>
+                    <label>Total hours:</label>
+                    <p id="trainerHours"></p>
+                </div>
+
+                <div class="classSection">
+                    <h2 class="classTitle">Assigned classes</h2>
+                    <div id="trainerClasses" class="classList"></div>
+                    <template id="classTemplate">
+                        <div class="classView">
+                            <h3 class="className"></h3>
+                            <p class="classDate"></p>
+                            <p class="classTime"></p>
+                            <a class="classLink">View class</a>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+            import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+            
+            // AUTHORISATION
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                // catch params from trainer view page and set other variables
+                const id = new URLSearchParams(window.location.search).get('id');
+                
+                const trainerRef = ref(db, `trainers/${id}`);
+                const classesRef = ref(db, 'classes');
+
+                const trainerClassesDiv = document.getElementById('trainerClasses');
+                const template = document.getElementById('classTemplate');
+
+                const trainerHoursEl = document.getElementById('trainerHours');
+                const trainerNameEl = document.getElementById('trainerName');
+            
+                let trainerData = null;
+                let trainerClasses = {};
+                let allClasses = {};
+
+                // DISPLAY TRAINER DETAILS FROM DATABASE
+
+                // create real time listener
+                onValue(trainerRef, (trainerSnapshot) => {
+
+                    // get trainer data snapshot
+                    trainerData = trainerSnapshot.val();
+
+                    // return function if no data
+                    if (!trainerData) return;
+
+                    // fill in trainer details from database
+                    trainerNameEl.textContent = trainerData.name;
+
+                    // get a list of the trainers classes
+                    trainerClasses = trainerData.classes || {};
+
+                    renderTrainerClasses();
+                });
+
+                onValue(classesRef, (classSnapshot) => {
+
+                    // get snapshot of all classes
+                    allClasses = classSnapshot.val();
+
+                    renderTrainerClasses();
+                    });
+
+                // RENDER FUNCTION
+
+                function renderTrainerClasses() {
+                    if (!trainerData || !allClasses) return;
+
+                    trainerClassesDiv.innerHTML = '';
+
+                    let totalHours = 0;
+
+                    for (let classId in trainerClasses) {
+                        const classItem = allClasses[classId];
+                        if(!classItem) continue;
+                        totalHours += Number(classItem.time.hours);
+
+                        // clone template
+                        const copy = template.content.cloneNode(true);
+
+                        // fill template
+                        copy.querySelector('.className').textContent = classItem.name;
+                        copy.querySelector('.classDate').textContent = classItem.date;
+                        copy.querySelector('.classTime').textContent = classItem.time.start;
+
+                        const link = copy.querySelector('.classLink');
+                        link.href = `staffClassDetails.html?id=${classId}`;
+                        link.textContent = 'View class';
+
+                        trainerClassesDiv.appendChild(copy);
+
+                    }
+
+                    trainerHoursEl.textContent = `${totalHours} hours`;
+                }
+
+            });
+        </script> 
+    </body>
+</html>
