@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Create class</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+        <style>
+            .content, h1 {
+                background-color: #fff;
+                border-bottom: 2px solid #e5e7eb;
+                text-align: center;
+                padding: 15px;
+                margin: 5px;
+            }
+            h1 {
+                padding: 15px;
+                background-color: #e3e5ec;
+                margin: 10px;
+            }
+            label {
+                text-transform: uppercase;
+                color: #5e5e5e;
+                display: block;
+                margin: 5px;
+            }
+            .classForm{
+                border-top: 3px solid #3a60c7;
+            }
+            #className, #classDate, #classTime, #classLength, #trainerName {
+                color: #3a60c7;
+                font-size: 18px;
+                margin-top: 5px;
+            }
+            input, select { 
+                width: 80%;
+                height: 25px;
+                margin-bottom: 10px;
+            }
+            select {
+                width: 81%;
+                height: 30px;
+                border: none;
+            }
+            button {
+                text-decoration: none;
+                border: none;
+                font-weight: 600;
+                padding: 8px 12px;
+                margin: 10px;
+                border-radius: 8px;
+            }
+            button:hover {
+                background: #eef2ff;
+                color: #263c7a;
+            }
+
+        </style>
+    </head>
+    <body>
+        <table class="navigation">
+            <tr>
+                <td class="navBox"><a href="StaffDashboard.html"><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
+                <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
+            </tr>
+        </table>
+
+        <div class="container">
+            <h1>Create new class</h1>
+                <div class="content classForm">
+                    <h2>Edit class details:</h2>
+                    <form id="editClass">
+                        <label>Class name:</label>
+                            <input type="text" id="inputClassName">
+                        <br>
+                        <label>Date:</label>
+                            <input type="date" id="inputDate">
+                        <br>
+                        <label>Time start:</label>
+                            <input type="time" id="inputStartTime">
+                        <br>
+                        <label>Class length (hours):</label>
+                            <input type="number" id="inputLength">
+                        <br>
+                        <label>Assigned trainer:</label>
+                            <select id="assignTrainer">
+                                <option value="">Select a trainer</option>
+                            </select>
+                        <br>
+                        <button type="submit" id="updateButton">Create class</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script type="module">
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+            import { ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+            // AUTHORISATION
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                // set variables
+                const usersRef = ref(db, 'users');
+
+                const form = document.getElementById('editClass');
+
+                const inputClassName = document.getElementById('inputClassName');
+                const inputDate = document.getElementById('inputDate');
+                const inputStartTime = document.getElementById('inputStartTime');
+                const inputLength = document.getElementById('inputLength');
+                const assignTrainer = document.getElementById('assignTrainer');
+
+                // DISPLAY ALL TRAINERS IN DROPDOWN 
+
+                // create listener for all trainers
+                onValue(usersRef, (userSnapshot) => {
+
+                    // get snapshot of users 
+                    const users = userSnapshot.val();
+
+                    // return if empty
+                    if (!users) return;
+
+                    // clear old trainer options but keep placeholder (avoids duplicates)
+                    assignTrainer.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
+
+                    // append each trainers id and name to dropdown options
+                    for (let key in users) {
+                        const trainer = users[key];
+
+                        if (trainer.role === 'trainer') {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = trainer.profile.firstName;
+                            assignTrainer.appendChild(option);
+                        }
+                    }
+                });
+
+                // CREATE CLASS
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const className = inputClassName.value.trim();
+                    const classDate = inputDate.value;
+                    const startTime = inputStartTime.value;
+                    const classLength = Number(inputLength.value);
+                    const trainerId = assignTrainer.value;
+
+
+                    // VALIDATION
+
+                    if (!className) {
+                        alert('Please enter a class name');
+                        return;
+                    }
+
+                    if (!classDate) {
+                        alert('Please select a date');
+                        return;
+                    }
+
+                    if (!startTime) {
+                        alert('Please select a start time');
+                        return;
+                    }
+
+                    if (!classLength || classLength <= 0) {
+                        alert('Please enter a valid class length');
+                        return;
+                    }
+
+                    if (classLength > 8) {
+                        alert('Class length cannot exceed 8 hours');
+                        return;
+                    }
+
+                    if (!trainerId) {
+                        alert('Please assign a trainer');
+                        return;
+                    }
+
+                    try {
+                        // reference to classes
+                        const classesRef = ref(db, 'classes');
+
+                        // generate new class id
+                        const newClassRef = push(classesRef);
+                        const classId = newClassRef.key;
+
+                        // create class object
+                        const newClass = {
+                            name: className,
+                            date: classDate,
+                            trainer_ID: trainerId,
+                            time: {
+                                start: startTime,
+                                hours: classLength,
+                            }
+                        };
+
+                        // save to database
+                        await set(newClassRef, newClass);
+
+                        // add class id to trainers classes list
+                        const trainerClassRef = ref(db,`users/${trainerId}/classes/${classId}`);
+                        await set(trainerClassRef, true);
+
+                        alert('Class created successfully');
+
+                        // clear form
+                        form.reset();
+                        } catch (error) {
+                            console.error(error);
+                            alert('Failed to create class');
+                        }
+
+                    });
+                });
+        </script>
+    </body>
+</html>

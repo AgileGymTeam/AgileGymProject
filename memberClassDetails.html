@@ -49,14 +49,13 @@
 
     <body>
         <table class="navigation">
-                <tr>
-                    <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
-                    <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Shop</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Profile</strong></a></td>
-                    <td class="navBox"><a href=""><strong>Logout</strong></a></td>
-                </tr>
+            <tr>
+                <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
+                <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+            </tr>
         </table>
 
         <div class="container">
@@ -82,89 +81,99 @@
         </div>
 
         <script type="module">
-            import { db } from './firebaseConfig.js'
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
             import { ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
             // catch params passed from class view page 
             const id = new URLSearchParams(window.location.search).get('id');
             const classRef = ref(db, 'classes/' + id);
 
-            // DISPLAY CLASS DETAILS FROM DATABASE
+            // AUTHORISATION
 
-            // create real time listener
-            onValue(classRef, (classSnapshot) => {
-
-                // get class data snapshot
-                const classData = classSnapshot.val();
-
-                // return function if no data
-                if (!classData) return;
-
-                // fill in class details from database
-                document.getElementById('className').textContent = classData.name;
-                document.getElementById('classDate').textContent = classData.date;
-                document.getElementById('classTime').textContent = classData.time.start;
-                if (classData.time.hours === 1) {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hour';
-                } else {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hours';
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
                 }
                 
+                // DISPLAY CLASS DETAILS FROM DATABASE
 
-                // fetch trainer name 
-                const trainerId = classData.trainer_ID
-                const trainerRef = ref(db, `trainers/${trainerId}`);
+                // create real time listener
+                onValue(classRef, (classSnapshot) => {
 
-                // create real time listener for trainer data
-                onValue(trainerRef, (trainerSnapshot) => {
+                    // get class data snapshot
+                    const classData = classSnapshot.val();
 
-                    // get trainer snapshot
-                    const trainerData = trainerSnapshot.val();
+                    // return function if no data
+                    if (!classData) return;
 
-                    if (!trainerData) return;
+                    // fill in class details from database
+                    document.getElementById('className').textContent = classData.name;
+                    document.getElementById('classDate').textContent = classData.date;
+                    document.getElementById('classTime').textContent = classData.time.start;
+                    if (classData.time.hours === 1) {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hour';
+                    } else {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hours';
+                    }
+                    
 
-                    document.getElementById('trainerName').textContent = trainerData.name;
+                    // fetch trainer name 
+                    const trainerId = classData.trainer_ID
+                    const trainerRef = ref(db, `users/${trainerId}`);
+
+                    // create real time listener for trainer data
+                    onValue(trainerRef, (trainerSnapshot) => {
+
+                        // get trainer snapshot
+                        const trainerData = trainerSnapshot.val();
+
+                        if (!trainerData) return;
+
+                        document.getElementById('trainerName').textContent = trainerData.profile.firstName;
+                    });
                 });
-            });
 
-            // TOGGLE SIGN UP STATE
-            let signedUp = false;
-            const btn = document.getElementById('signupButton');
-            const message = document.getElementById('statusMessage');
+                // TOGGLE SIGN UP STATE
+                let signedUp = false;
+                const btn = document.getElementById('signupButton');
+                const message = document.getElementById('statusMessage');
 
-            // set userId 
-            const userId = 1; // SET TEMP VALUE UNTIL LOGIN AND USER AUTH IS DONE
-            const userClassRef = ref(db, `users/${userId}/classes/${id}`);
+                // set userId 
+                const userId = 1; // SET TEMP VALUE UNTIL LOGIN AND USER AUTH IS DONE
+                const userClassRef = ref(db, `users/${user.uid}/classes/${id}`);
 
-            // create listener for users classes
-            onValue(userClassRef, (userClassSnapshot) => {
+                // create listener for users classes
+                onValue(userClassRef, (userClassSnapshot) => {
 
-                // if class is in users list = true, else false
-                signedUp = userClassSnapshot.exists();
-                
-                // change button text
-                btn.textContent = signedUp
-                    ? 'Cancel Sign Up'
-                    : 'Sign Up';
+                    // if class is in users list = true, else false
+                    signedUp = userClassSnapshot.exists();
+                    
+                    // change button text
+                    btn.textContent = signedUp
+                        ? 'Cancel Sign Up'
+                        : 'Sign Up';
 
-                // change message
-                message.textContent = signedUp
-                    ? 'You are signed up for this class!'
-                    : '';
+                    // change message
+                    message.textContent = signedUp
+                        ? 'You are signed up for this class!'
+                        : '';
 
-            });
+                });
 
-            // SIGN UP FUNCTIONALITY
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
+                // SIGN UP FUNCTIONALITY
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
 
-                if (signedUp) {
-                    // remove class from users list
-                    remove(userClassRef);
-                } else {
-                    // add class to users list
-                    set(userClassRef, true);
-                }
+                    if (signedUp) {
+                        // remove class from users list
+                        remove(userClassRef);
+                    } else {
+                        // add class to users list
+                        set(userClassRef, true);
+                    }
+                });
             });
 
         </script>
