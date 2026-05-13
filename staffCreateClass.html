@@ -109,7 +109,7 @@
                 }
 
                 // set variables
-                const trainersRef = ref(db, 'trainers');
+                const usersRef = ref(db, 'users');
 
                 const form = document.getElementById('editClass');
 
@@ -122,24 +122,28 @@
                 // DISPLAY ALL TRAINERS IN DROPDOWN 
 
                 // create listener for all trainers
-                onValue(trainersRef, (trainerSnapshot) => {
+                onValue(usersRef, (userSnapshot) => {
 
-                    // get snapshot of trainers 
-                    const trainers = trainerSnapshot.val();
+                    // get snapshot of users 
+                    const users = userSnapshot.val();
 
                     // return if empty
-                    if (!trainers) return;
+                    if (!users) return;
 
                     // clear old trainer options but keep placeholder (avoids duplicates)
                     assignTrainer.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
 
                     // append each trainers id and name to dropdown options
-                    Object.entries(trainers).forEach(([id, trainer]) => {
-                        const option = document.createElement('option');
-                        option.value = id;
-                        option.textContent = trainer.name;
-                        assignTrainer.appendChild(option);
-                    });
+                    for (let key in users) {
+                        const trainer = users[key];
+
+                        if (trainer.role === 'trainer') {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = trainer.profile.firstName;
+                            assignTrainer.appendChild(option);
+                        }
+                    }
                 });
 
                 // CREATE CLASS
@@ -185,6 +189,7 @@
                         alert('Please assign a trainer');
                         return;
                     }
+
                     try {
                         // reference to classes
                         const classesRef = ref(db, 'classes');
@@ -208,7 +213,7 @@
                         await set(newClassRef, newClass);
 
                         // add class id to trainers classes list
-                        const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${classId}`);
+                        const trainerClassRef = ref(db,`users/${trainerId}/classes/${classId}`);
                         await set(trainerClassRef, true);
 
                         alert('Class created successfully');

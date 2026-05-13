@@ -50,7 +50,7 @@
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="StaffDashboard.html"><strong>[Website name]</strong></a></td>
                 <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
                 <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
             </tr>
@@ -85,10 +85,10 @@
                 // set variables
                 const list = document.getElementById('trainerList');
                 const template = document.getElementById('trainerTemplate');
-                const trainersRef = ref(db, 'trainers')
+                const usersRef = ref(db, 'users')
 
                 // create real time listener
-                onValue(trainersRef, (snapshot) => {
+                onValue(usersRef, (snapshot) => {
                     // clear list before re-render
                     list.innerHTML = ''; 
 
@@ -101,20 +101,22 @@
                         return;
                     }
 
-                    // loop over each trainer
+                    // loop over each user, only use users with role: trainer
                     for (let key in data) {
-                        const trainerData = data[key];
+                        if (data[key].role === 'trainer') {
+                            const trainerData = data[key];
 
-                        // make copy of template
-                        const templateCopy = template.content.cloneNode(true);
+                            // make copy of template
+                            const templateCopy = template.content.cloneNode(true);
 
-                        // fill in template with class details
-                        templateCopy.querySelector('.trainerName').textContent = trainerData.name;
-                         // pass trainer id as a parameter to next page
-                        templateCopy.querySelector('.trainerDetails').href = `staffTrainerDetails.html?id=${key}`;
+                            // fill in template with class details
+                            templateCopy.querySelector('.trainerName').textContent = trainerData.profile.firstName;
+                            // pass trainer id as a parameter to next page
+                            templateCopy.querySelector('.trainerDetails').href = `staffTrainerDetails.html?id=${key}`;
 
-                        // add to list
-                        list.appendChild(templateCopy);
+                            // add to list
+                            list.appendChild(templateCopy);
+                        };
                     }
                 });
             });

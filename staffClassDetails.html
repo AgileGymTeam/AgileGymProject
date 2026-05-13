@@ -111,6 +111,7 @@
                         <label>Assigned trainer:</label>
                             <select id="assignTrainer">
                                 <option value="">Select a trainer</option>
+                                <option value="unassign">Unassign trainer</option>
                             </select>
                         <br>
                         <button type="submit" id="updateButton">Apply changes</button>
@@ -135,7 +136,9 @@
                 // catch params passed from class view page 
                 const id = new URLSearchParams(window.location.search).get('id');
                 const classRef = ref(db, `classes/${id}`);
-                const trainersRef = ref(db, 'trainers');
+                const usersRef = ref(db, 'users');
+
+                const assign = document.getElementById('assignTrainer');
 
                 let trainerCache = {};
                 let classData = null;
@@ -168,25 +171,24 @@
                 // DISPLAY ALL TRAINERS IN DROPDOWN 
 
                 // create listener for all trainers
-                onValue(trainersRef, (trainerSnapshot) => {
+                onValue(usersRef, (userSnapshot) => {
 
                     // get snapshot of all trainers and add to trainers cache
-                    trainerCache = trainerSnapshot.val();
-                    const assign = document.getElementById('assignTrainer');
-
-                    // return if empty
-                    if (!trainerCache) return;
+                    trainerCache = userSnapshot.val();
 
                     // clear old trainer options but keep placeholder (avoids duplicates)
                     assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
 
-                    // append each trainers id and name to dropdown options
-                    Object.entries(trainerCache).forEach(([id, trainer]) => {
-                        const option = document.createElement('option');
-                        option.value = id;
-                        option.textContent = trainer.name;
-                        assign.appendChild(option);
-                    });
+                    for (let key in trainerCache) {
+                        const trainer = trainerCache[key];
+
+                        if (trainer.role === 'trainer') {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = trainer.profile.firstName;
+                            assign.appendChild(option);
+                        }
+                    }
 
                     // call render function again incase name updated
                     renderTrainerName();
@@ -196,15 +198,21 @@
                 function renderTrainerName() {
                     if (!classData) return;
 
-                    const name = trainerCache?.[classData.trainer_ID]?.name || 'Loading...';
+                    const name = trainerCache?.[classData.trainer_ID]?.profile?.firstName || 'No trainer assigned';
                     document.getElementById('trainerName').textContent = name;
                 }
 
                 // UPDATING DATABASE
 
                 // add button event listener to update when button is clicked
-                const btn = document.getElementById('updateButton');
-                btn.addEventListener('submit', () => {
+                const form = document.getElementById('editClass');
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    if (!classData) return;
+
+                    const oldTrainerId = classData.trainer_ID;
+                    const newTrainerId = assign.value;
         
                     // store only values that change in updatedData
                     const updatedData = {}
@@ -215,29 +223,41 @@
                     const date = document.getElementById('inputDate').value;
                     if (date) updatedData.date = date;
 
-                    const trainerId = document.getElementById('assignTrainer').value;
-                    if (trainerId) updatedData.trainer_ID = trainerId;
-
                     const startTime = document.getElementById('inputStartTime').value;
                     if (startTime) updatedData['time/start'] = startTime;
 
                     const hours = document.getElementById('inputLength').value;
                     if (hours) updatedData['time/hours'] = Number(hours);
 
-                    // remove old trainer if trainer was switched
-                    if (classData.trainer_ID && classData.trainer_ID !== trainerId) {
-                        const oldTrainerClassRef = ref(db, `trainers/${classData.trainer_ID}/classes/${id}`);
-                        remove(oldTrainerClassRef);
+                    if (newTrainerId === 'unassign') {
+                        updatedData.trainer_ID = null;
+                    } else if (newTrainerId) {
+                        updatedData.trainer_ID = newTrainerId;
                     }
 
-                    // update database using updatedData (avoids overwriting with empty strings)
-                    update(classRef, updatedData);
+                    /// determine final trainer value
+                    const finalTrainerId =
+                        newTrainerId === 'unassign'
+                            ? null
+                            : newTrainerId || null;
 
-                    // update classes for trainer
-                    if (trainerId && id) {
-                        const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${id}`);
+                    // update class
+                    await update(classRef, {
+                        ...updatedData,
+                        trainer_ID: finalTrainerId
+                    });
 
-                        set(trainerClassRef,  true);
+                    // remove old trainer link
+                    if (oldTrainerId && oldTrainerId !== finalTrainerId) {
+                        await remove(ref(db, `users/${oldTrainerId}/classes/${id}`));
+                    }
+
+                    // add new trainer link
+                    if (finalTrainerId) {
+                        await set(
+                            ref(db, `users/${finalTrainerId}/classes/${id}`),
+                            true
+                        );
                     }
                 });
             });

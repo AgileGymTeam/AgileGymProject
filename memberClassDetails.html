@@ -121,7 +121,7 @@
 
                     // fetch trainer name 
                     const trainerId = classData.trainer_ID
-                    const trainerRef = ref(db, `trainers/${trainerId}`);
+                    const trainerRef = ref(db, `users/${trainerId}`);
 
                     // create real time listener for trainer data
                     onValue(trainerRef, (trainerSnapshot) => {
@@ -131,7 +131,7 @@
 
                         if (!trainerData) return;
 
-                        document.getElementById('trainerName').textContent = trainerData.name;
+                        document.getElementById('trainerName').textContent = trainerData.profile.firstName;
                     });
                 });
 

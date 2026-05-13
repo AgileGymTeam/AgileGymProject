@@ -28,8 +28,10 @@
                 display: block;
                 margin: 5px;
             }
-            #trainerHours, .classDate, .classTime {
+            #trainerHours, #trainerEmail, #trainerId, #trainerAddress, #trainerPhone, .classDate, .classTime {
                 color: #3a60c7;
+                margin-top: 5px;
+
             }
             .trainerDetails {
                 width: 30%;
@@ -55,6 +57,13 @@
                 padding-bottom: 20px;
                 margin: 5px;
             }
+            .emptyMessage {
+                grid-column: 1/-1;
+                padding: 20px;
+                text-align: center;
+                color: #1f2937;
+                font-style: italic;
+            }
             .classLink {
                 text-decoration: none;
                 color: #374151;
@@ -73,7 +82,7 @@
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="StaffDashboard.html"><strong>[Website name]</strong></a></td>
                 <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
                 <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
             </tr>
@@ -84,8 +93,16 @@
             <div class="sideLayout">
                 <div class="content trainerDetails">
                     <h2 id="trainerName"></h2>
+                    <label>Trainer Id:</label>
+                        <p id="trainerId"></p>
+                    <label>email:</label>
+                        <p id="trainerEmail"></p>
+                    <label>address:</label>
+                        <p id="trainerAddress"></p>
+                    <label>Phone number:</label>
+                        <p id="trainerPhone"></p>
                     <label>Total hours:</label>
-                    <p id="trainerHours"></p>
+                        <p id="trainerHours"></p>
                 </div>
 
                 <div class="classSection">
@@ -119,14 +136,11 @@
                 // catch params from trainer view page and set other variables
                 const id = new URLSearchParams(window.location.search).get('id');
                 
-                const trainerRef = ref(db, `trainers/${id}`);
+                const trainerRef = ref(db, `users/${id}`);
                 const classesRef = ref(db, 'classes');
 
                 const trainerClassesDiv = document.getElementById('trainerClasses');
                 const template = document.getElementById('classTemplate');
-
-                const trainerHoursEl = document.getElementById('trainerHours');
-                const trainerNameEl = document.getElementById('trainerName');
             
                 let trainerData = null;
                 let trainerClasses = {};
@@ -144,7 +158,11 @@
                     if (!trainerData) return;
 
                     // fill in trainer details from database
-                    trainerNameEl.textContent = trainerData.name;
+                    document.getElementById('trainerName').textContent = trainerData.profile.firstName;
+                    document.getElementById('trainerEmail').textContent = trainerData.email;
+                    document.getElementById('trainerId').textContent = id;
+                    document.getElementById('trainerAddress').textContent = trainerData.profile.address;
+                    document.getElementById('trainerPhone').textContent = trainerData.profile.phone;
 
                     // get a list of the trainers classes
                     trainerClasses = trainerData.classes || {};
@@ -169,9 +187,15 @@
 
                     let totalHours = 0;
 
+                    if (Object.keys(trainerClasses).length === 0) {
+                        trainerClassesDiv.innerHTML = '<p class="emptyMessage">Trainer not currently assigned to any classes.</p>';}
+
                     for (let classId in trainerClasses) {
+
                         const classItem = allClasses[classId];
+
                         if(!classItem) continue;
+
                         totalHours += Number(classItem.time.hours);
 
                         // clone template
@@ -187,10 +211,10 @@
                         link.textContent = 'View class';
 
                         trainerClassesDiv.appendChild(copy);
-
+                        
                     }
 
-                    trainerHoursEl.textContent = `${totalHours} hours`;
+                    document.getElementById('trainerHours').textContent = `${totalHours} hours`;
                 }
 
             });
