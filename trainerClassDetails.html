@@ -50,11 +50,8 @@
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
-                <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
-                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
-                <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+                <td class="navBox"><a href="trainerDashboard.html"><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
             </tr>
         </table>
 
@@ -71,11 +68,6 @@
                         <p id="classLength"></p>
                     <label>Assign trainer:</label>
                         <p id="trainerName"></p>
-
-                <p id="statusMessage"></p>
-                <form id="signup">
-                    <button type="button" id="signupButton"></button>
-                </form>
                 </div>            
             </div>
         </div>
@@ -135,45 +127,7 @@
                     });
                 });
 
-                // TOGGLE SIGN UP STATE
-                let signedUp = false;
-                const btn = document.getElementById('signupButton');
-                const message = document.getElementById('statusMessage');
-
-                // set userId 
-                const userId = 1; // SET TEMP VALUE UNTIL LOGIN AND USER AUTH IS DONE
-                const userClassRef = ref(db, `users/${user.uid}/classes/${id}`);
-
-                // create listener for users classes
-                onValue(userClassRef, (userClassSnapshot) => {
-
-                    // if class is in users list = true, else false
-                    signedUp = userClassSnapshot.exists();
-                    
-                    // change button text
-                    btn.textContent = signedUp
-                        ? 'Cancel Sign Up'
-                        : 'Sign Up';
-
-                    // change message
-                    message.textContent = signedUp
-                        ? 'You are signed up for this class!'
-                        : '';
-
-                });
-
-                // SIGN UP FUNCTIONALITY
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-
-                    if (signedUp) {
-                        // remove class from users list
-                        remove(userClassRef);
-                    } else {
-                        // add class to users list
-                        set(userClassRef, true);
-                    }
-                });
+            
             });
 
         </script>

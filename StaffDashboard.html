@@ -1,26 +1,121 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .container h1 {
+      background-color: #e3e5ec;
+      text-align: center;
+      padding: 25px;
+      margin: 30px 40px;
+    }
+
+    .dashboardGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 900px;
+      margin: 25px auto;
+      gap: 30px;
+      margin: 25px 40px;
+    }
+
+    .dashCard {
+      background-color: #fff;
+      border-top: 3px solid #3a60c7;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 30px;
+      text-align: center;
+
+    }
+
+    .dashCard a:hover {
+      background: #eef2ff;
+      color: #263c7a;
+    }
+
+    .dashCard h2 {
+      margin-top: 0;
+    }
+
+    .dashCard p {
+      color: #3a60c7;
+      min-height: 60px;
+    }
+
+    .dashCard a {
+      text-decoration: none;
+      color: #374151;
+      font-weight: 600;
+      font-size: 20px;
+    }
+
+    .dashCard a:hover {
+      color: #263c7a;
+    }
+
+    .container.top {
+      position: relative;
+    }
+
+    .logoutLink {
+      position: absolute;
+      top: 10px;
+      right: 0;
+
+      text-decoration: none;
+      color: #1f2a44;
+
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .logoutLink:hover {
+      background: #eef2ff;
+      color: #263c7a;
+    }
+  </style>
 </head>
+
 <body>
 
-    <h2>Dashboard</h2>
+  <div class="container top">
+    <h2>[Website name]</h2>
 
-    <div class="container top">
-  <table class="navigation">
-    <tr>
-      <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-      <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
-      <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
-      <td class="navBox"><a href=""><strong>Profile</strong></a></td>
-      <td class="navBox"><a href="login.html"><strong>Logout</strong></a></td>
-    </tr>
-  </table>
-</div>
+    <a href="#" id="logoutBtn" class="logoutLink">
+      Logout
+    </a>
+  </div>
+
+  <div class="container">
+    <h1>Staff Dashboard</h1>
 
 
-    <p>Overview of the system</p>
+    <div class="dashboardGrid">
+      <div class="dashCard">
+        <h2>Manage Classes</h2>
+        <p>View upcoming classes, check class details, and manage schedules.</p>
+        <a href="staffClassView.html">View Classes</a>
+      </div>
+
+      <div class="dashCard">
+        <h2>Manage Trainers</h2>
+        <p>View trainer details and assigned classes.</p>
+        <a href="staffTrainerView.html">View Trainers</a>
+      </div>
+
+
+      <script type="module">
+        import { auth } from './firebaseConfig.js';
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+          await signOut(auth);
+          window.location.href = "index.html";
+        });
+      </script>
 
 </body>
+
 </html>

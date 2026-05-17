@@ -55,11 +55,10 @@
         <table class="navigation">
             <tr>
                 <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
-                <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
                 <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Shop</strong></a></td>
                 <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+                <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
             </tr>
         </table>
         
@@ -69,6 +68,7 @@
                 <div class="classView">
                     <h2 class="className"></h2>
                     <p class="classDate"></p>
+                    <p class="classTime"></p>
                     <a class="classDetails">View details</a>
                 </div>
             </template>
@@ -77,46 +77,57 @@
         </div>
 
         <script type="module">
-            import { db } from './firebaseConfig.js'
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
             import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-            // DISPLAY ALL CLASSES IN A LIST
+            // AUTHORISATION
 
-            // set variables
-            const list = document.getElementById('classList');
-            const template = document.getElementById('classTemplate');
-            const classesRef = ref(db, 'classes');
-
-            // create real time listener
-            onValue(classesRef, (snapshot) => {
-                // clear list before re-render
-                list.innerHTML = ''; 
-
-                // get data snapshot
-                const data = snapshot.val();
-
-                // in case data is null, return
-                if (!data) {
-                    list.innerHTML = "<p>No classes found</p>";
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
                     return;
                 }
 
-                // loop over each class
-                for (let key in data) {
-                    const classData = data[key];
+                // DISPLAY ALL CLASSES IN A LIST
 
-                    // make copy of template
-                    const templateCopy = template.content.cloneNode(true);
+                // set variables
+                const list = document.getElementById('classList');
+                const template = document.getElementById('classTemplate');
+                const classesRef = ref(db, 'classes');
 
-                    // fill in template with class details
-                    templateCopy.querySelector('.className').textContent = classData.name;
-                    templateCopy.querySelector('.classDate').textContent = classData.date;
-                    // pass class id as a parameter to next page
-                    templateCopy.querySelector('.classDetails').href = `memberClassDetails.html?id=${key}`;
+                // create real time listener
+                onValue(classesRef, (snapshot) => {
+                    // clear list before re-render
+                    list.innerHTML = ''; 
 
-                    // add to list
-                    list.appendChild(templateCopy);
-                }
+                    // get data snapshot
+                    const data = snapshot.val();
+
+                    // in case data is null, return
+                    if (!data) {
+                        list.innerHTML = "<p>No classes found</p>";
+                        return;
+                    }
+
+                    // loop over each class
+                    for (let key in data) {
+                        const classData = data[key];
+
+                        // make copy of template
+                        const templateCopy = template.content.cloneNode(true);
+
+                        // fill in template with class details
+                        templateCopy.querySelector('.className').textContent = classData.name;
+                        templateCopy.querySelector('.classDate').textContent = classData.date;
+                        templateCopy.querySelector('.classTime').textContent = classData.time.start;
+                        // pass class id as a parameter to next page
+                        templateCopy.querySelector('.classDetails').href = `memberClassDetails.html?id=${key}`;
+
+                        // add to list
+                        list.appendChild(templateCopy);
+                    }
+                });
             });
         </script>
     </body>

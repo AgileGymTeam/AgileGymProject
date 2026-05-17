@@ -63,17 +63,19 @@
                 background: #eef2ff;
                 color: #263c7a;
             }
-
+            #deleteClassButton:hover {
+                background: #ffeeee;
+                color: #7a2626;                
+            }
 
         </style>
     </head>
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="StaffDashboard.html"><strong>[Website name]</strong></a></td>
                 <td class="navBox"><a href="staffTrainerView.html"><strong>Trainers</strong></a></td>
                 <td class="navBox"><a href="staffClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
             </tr>
         </table>
 
@@ -92,6 +94,9 @@
                         <p id="classLength"></p>
                     <label>Assign trainer:</label>
                         <p id="trainerName"></p>
+                    <form id="deleteClass">
+                        <button type='submit' id="deleteClassButton">Delete class</button>
+                    </form>
                 </div>
 
                 <div class="content classForm">
@@ -112,126 +117,170 @@
                         <label>Assigned trainer:</label>
                             <select id="assignTrainer">
                                 <option value="">Select a trainer</option>
+                                <option value="unassign">Unassign trainer</option>
                             </select>
                         <br>
-                        <button type="button" id="updateButton">Apply changes</button>
+                        <button type="submit" id="updateButton">Apply changes</button>
                     </form>
                 </div>
             </div>
         </div>
 
         <script type="module">
-            import { db } from './firebaseConfig.js'
+            import { db, auth } from './firebaseConfig.js'
+            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
             import { ref, onValue, update, set, remove } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-            // catch params passed from class view page 
-            const id = new URLSearchParams(window.location.search).get('id');
-            const classRef = ref(db, 'classes/' + id);
-            const trainersRef = ref(db, 'trainers');
+            // AUTHORISATION
 
-            let trainerCache = {};
-            let classData = null;
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) {
+                    window.location.href = "index.html";
+                    return;
+                }
 
-            // DISPLAY CLASS DETAILS FROM DATABASE
+                // catch params passed from class view page 
+                const id = new URLSearchParams(window.location.search).get('id');
+                const classRef = ref(db, `classes/${id}`);
+                const usersRef = ref(db, 'users');
 
-            // create real time listener
-            onValue(classRef, (classSnapshot) => {
-
-                // get class data snapshot
-                classData = classSnapshot.val();
-
-                // return function if no data
-                if (!classData) return;
-
-                // fill in class details from database
-                document.getElementById('className').textContent = classData.name;
-                document.getElementById('classDate').textContent = classData.date;
-                document.getElementById('classTime').textContent = classData.time.start;
-                if (classData.time.hours <= 1) {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hour';
-                } else {
-                    document.getElementById('classLength').textContent = classData.time.hours + ' hours';
-                };
-                
-                // render the trainers name
-                renderTrainerName(classData);
-            });
-
-            // DISPLAY ALL TRAINERS IN DROPDOWN 
-
-            // create listener for all trainers
-            onValue(trainersRef, (trainerSnapshot) => {
-
-                // get snapshot of all trainers and add to trainers cache
-                trainerCache = trainerSnapshot.val();
                 const assign = document.getElementById('assignTrainer');
 
-                // return if empty
-                if (!trainerCache) return;
+                let trainerCache = {};
+                let classData = null;
 
-                // clear old trainer options but keep placeholder (avoids duplicates)
-                assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
+                // DISPLAY CLASS DETAILS FROM DATABASE
 
-                // append each trainers id and name to dropdown options
-                Object.entries(trainerCache).forEach(([id, trainer]) => {
-                    const option = document.createElement('option');
-                    option.value = id;
-                    option.textContent = trainer.name;
-                    assign.appendChild(option);
+                // create real time listener
+                onValue(classRef, (classSnapshot) => {
+
+                    // get class data snapshot
+                    classData = classSnapshot.val();
+
+                    // return function if no data
+                    if (!classData) return;
+
+                    // fill in class details from database
+                    document.getElementById('className').textContent = classData.name;
+                    document.getElementById('classDate').textContent = classData.date;
+                    document.getElementById('classTime').textContent = classData.time.start;
+                    if (classData.time.hours <= 1) {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hour';
+                    } else {
+                        document.getElementById('classLength').textContent = classData.time.hours + ' hours';
+                    };
+                    
+                    // render the trainers name
+                    renderTrainerName(classData);
                 });
 
-                // call render function again incase name updated
-                renderTrainerName();
-            }) 
+                // DISPLAY ALL TRAINERS IN DROPDOWN 
 
-            // function to render the trainers name in details
-            function renderTrainerName() {
-                if (!classData) return;
+                // create listener for all trainers
+                onValue(usersRef, (userSnapshot) => {
 
-                const name = trainerCache?.[classData.trainer_ID]?.name || 'Loading...';
-                document.getElementById('trainerName').textContent = name;
-            }
+                    // get snapshot of all trainers and add to trainers cache
+                    trainerCache = userSnapshot.val();
 
-            // UPDATING DATABASE
+                    // clear old trainer options but keep placeholder (avoids duplicates)
+                    assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
 
-            // add button event listener to update when button is clicked
-            const btn = document.getElementById('updateButton');
-            btn.addEventListener('click', () => {
-     
-                // store only values that change in updatedData
-                const updatedData = {}
+                    for (let key in trainerCache) {
+                        const trainer = trainerCache[key];
 
-                const name = document.getElementById('inputClassName').value;
-                if (name) updatedData.name = name;
+                        if (trainer.role === 'trainer') {
+                            const option = document.createElement('option');
+                            option.value = key;
+                            option.textContent = trainer.profile.firstName;
+                            assign.appendChild(option);
+                        }
+                    }
 
-                const date = document.getElementById('inputDate').value;
-                if (date) updatedData.date = date;
+                    // call render function again incase name updated
+                    renderTrainerName();
+                }) 
 
-                const trainerId = document.getElementById('assignTrainer').value;
-                if (trainerId) updatedData.trainer_ID = trainerId;
+                // function to render the trainers name in details
+                function renderTrainerName() {
+                    if (!classData) return;
 
-                const startTime = document.getElementById('inputStartTime').value;
-                if (startTime) updatedData['time/start'] = startTime;
-
-                const hours = document.getElementById('inputLength').value;
-                if (hours) updatedData['time/hours'] = Number(hours);
-
-                // remove old trainer if trainer was switched
-                if (classData.trainer_ID && classData.trainer_ID !== trainerId) {
-                    const oldTrainerClassRef = ref(db, `trainers/${classData.trainer_ID}/classes/${id}`);
-                    remove(oldTrainerClassRef);
+                    const name = trainerCache?.[classData.trainer_ID]?.profile?.firstName || 'No trainer assigned';
+                    document.getElementById('trainerName').textContent = name;
                 }
 
-                // update database using updatedData (avoids overwriting with empty strings)
-                update(classRef, updatedData);
+                // DELETE CLASS BUTTON
 
-                // update classes for trainer
-                if (trainerId && id) {
-                    const trainerClassRef = ref(db,`trainers/${trainerId}/classes/${id}`);
+                // button event listener for when button is clicked
+                const deleteButton = document.getElementById('deleteClass');
+                deleteButton.addEventListener('submit', async (e) => {
+                    e.preventDefault();
 
-                    set(trainerClassRef,  true);
-                }
-            })
+                    // delete class from database if user confirms
+                    if (confirm('Class will be deleted from system. Continue?')) {
+                        await remove(ref(db, `classes/${id}`));
+                        window.location.replace('staffClassView.html');
+                    }
+                })
+
+                // UPDATING DATABASE
+
+                // add button event listener to update when button is clicked
+                const form = document.getElementById('editClass');
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    if (!classData) return;
+
+                    const oldTrainerId = classData.trainer_ID;
+                    const newTrainerId = assign.value;
+        
+                    // store only values that change in updatedData
+                    const updatedData = {}
+
+                    const name = document.getElementById('inputClassName').value;
+                    if (name) updatedData.name = name;
+
+                    const date = document.getElementById('inputDate').value;
+                    if (date) updatedData.date = date;
+
+                    const startTime = document.getElementById('inputStartTime').value;
+                    if (startTime) updatedData['time/start'] = startTime;
+
+                    const hours = document.getElementById('inputLength').value;
+                    if (hours) updatedData['time/hours'] = Number(hours);
+
+                    if (newTrainerId === 'unassign') {
+                        updatedData.trainer_ID = null;
+                    } else if (newTrainerId) {
+                        updatedData.trainer_ID = newTrainerId;
+                    }
+
+                    /// determine final trainer value
+                    const finalTrainerId =
+                        newTrainerId === 'unassign'
+                            ? null
+                            : newTrainerId || null;
+
+                    // update class
+                    await update(classRef, {
+                        ...updatedData,
+                        trainer_ID: finalTrainerId
+                    });
+
+                    // remove old trainer link
+                    if (oldTrainerId && oldTrainerId !== finalTrainerId) {
+                        await remove(ref(db, `users/${oldTrainerId}/classes/${id}`));
+                    }
+
+                    // add new trainer link
+                    if (finalTrainerId) {
+                        await set(
+                            ref(db, `users/${finalTrainerId}/classes/${id}`),
+                            true
+                        );
+                    }
+                });
+            });
         </script>
     </body>
 </html>
