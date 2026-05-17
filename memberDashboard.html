@@ -34,7 +34,6 @@
       background: white;
       border-top: 3px solid #3a60c7;
       border-bottom: 2px solid #e5e7eb;
-      padding: 30px;
       text-align: center;
       min-height: 240px;
       display: flex;
@@ -105,16 +104,55 @@
     #logoutBtn:hover {
       background: #dfe6ff;
     }
+
+    .profileCorner {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+
+    .profileCorner a {
+      text-decoration: none;
+      background: #eef2ff;
+      color: #1f2a44;
+
+      width: 80px;
+      height: 80px;
+
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+
+      font-size: 34px;
+    }
+
+
+    .topBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+    }
   </style>
 </head>
 
 <body>
 
   <div class="dashboardPage">
+    <div class="topBar">
 
-    <div class="welcomeSection">
-      <h1 id="welcomeMessage">Hello Member!</h1>
-      <p>Welcome back to your gym dashboard.</p>
+      <div class="welcomeSection">
+        <h1 id="welcomeMessage">Hello Member!</h1>
+        <p>Welcome back to your gym dashboard.</p>
+      </div>
+
+      <div class="profileCorner">
+        <a href="myProfile.html" id="profileButton">👤</a>
+      </div>
+
     </div>
 
     <div class="quickActions">
@@ -191,9 +229,49 @@
           userData.profile?.firstName || "Member";
 
         document.getElementById("welcomeMessage").textContent = "Hello " + firstName + "!";
+
+        const profileIcon =
+          userData.profile?.profileIcon || "👤";
+
+        document.getElementById("profileButton").textContent =
+          profileIcon;
+
+        const signedUpClassesDiv = document.getElementById("signedUpClasses");
+
+        const userClassesRef = ref(db, "users/" + user.uid + "/classes");
+        const userClassesSnapshot = await get(userClassesRef);
+
+        if (userClassesSnapshot.exists()) {
+          signedUpClassesDiv.innerHTML = "";
+
+          const userClasses = userClassesSnapshot.val();
+
+          for (let classId in userClasses) {
+            const classRef = ref(db, "classes/" + classId);
+            const classSnapshot = await get(classRef);
+
+            if (classSnapshot.exists()) {
+              const classData = classSnapshot.val();
+
+              const classItem = document.createElement("p");
+              const formattedDate = new Date(classData.date).toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+              });
+
+              classItem.textContent =
+                classData.name + " - " + formattedDate + " at " + classData.time.start;
+
+              signedUpClassesDiv.appendChild(classItem);
+            }
+          }
+        } else {
+          signedUpClassesDiv.innerHTML = "<p>No signed up classes shown yet.</p>";
+        }
+
       }
     });
-
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await signOut(auth);
       window.location.href = "index.html";

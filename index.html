@@ -95,6 +95,24 @@
     .forgotPasswordRow a:hover {
       text-decoration: underline;
     }
+
+    .passwordBox {
+      position: relative;
+    }
+
+    .passwordBox input {
+      padding-right: 40px;
+    }
+
+    .togglePassword {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #5e5e5e;
+      font-size: 18px;
+    }
   </style>
 </head>
 
@@ -113,7 +131,10 @@
       <input type="email" id="email">
 
       <label>Password:</label>
-      <input type="password" id="password">
+      <div class="passwordBox">
+        <input type="password" id="password">
+        <span class="togglePassword" onclick="togglePassword('password', this)"><span id="eyeIcon">👁</span></span>
+      </div>
 
       <div class="buttonRow">
         <button type="submit">Login</button>
@@ -234,10 +255,11 @@
           if (userData.role === "staff") {
             window.location.href = "StaffDashboard.html";
           } else if (userData.role === "trainer") {
-            window.location.href = "trainerDashboard.html";
+            window.location.href = "trainerDetails.html";
           } else {
             window.location.href = "memberDashboard.html";
           }
+        } else {
           loginMessage.textContent = "User not found in database";
         }
 
@@ -321,6 +343,19 @@
         registerMessage.style.color = "red";
       }
     });
+    window.togglePassword = function (inputId) {
+
+      const input = document.getElementById(inputId);
+      const eyeIcon = event.target;
+
+      if (input.type === "password") {
+        input.type = "text";
+        eyeIcon.textContent = "👁";
+      } else {
+        input.type = "password";
+        eyeIcon.textContent = "/👁";
+      }
+    };
   </script>
 </body>
 

@@ -1,268 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Subscription Payment</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="styles.css">
-        <style>
-            .content {
-                background-color: #fff;
-                border-bottom: 2px solid #e5e7eb;
-                text-align: center;
-                padding: 15px;
-                margin: 5px;
-            }
-            h1 {
-                background-color: #e3e5ec;
-                text-align: center;
-                padding: 15px;
-                margin: 10px;
-            }
-            form {
-                display: grid;
-                gap: 12px;
-                text-align: left;
-            }
-            label {
-                text-transform: uppercase;
-                color: #5e5e5e;
-                display: block;
-                margin-bottom: 5px;
-            }
-            input {
-                width: 100%;
-                box-sizing: border-box;
-                padding: 10px;
-                border: 1px solid #d1d5db;
-                border-radius: 8px;
-                font: inherit;
-            }
-            .paymentRow {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-            .orderSummary {
-                background-color: #f5f7fb;
-                border-top: 3px solid #3a60c7;
-                padding: 15px;
-                text-align: center;
-            }
-            #billingMemberName, #billingMemberEmail, #selectedPlanName, #selectedPlanPrice, #paymentStatusText {
-                color: #3a60c7;
-            }
-            button, a {
-                display: inline-block;
-                text-decoration: none;
-                border: none;
-                color: #374151;
-                font-weight: 600;
-                font-size: 16px;
-                padding: 8px 12px;
-                margin-top: 10px;
-                border-radius: 8px;
-                background: transparent;
-            }
-            button:hover, a:hover {
-                background: #eef2ff;
-                color: #263c7a;
-            }
-            #billingMessage {
-                font-weight: bold;
-            }
-        </style>
-    </head>
 
-    <body>
-        <table class="navigation">
-            <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
-                <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Shop</strong></a></td>
-                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
-            </tr>
-        </table>
+<head>
+    <meta charset="utf-8">
+    <title>Subscription Payment</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .content {
+            background-color: #fff;
+            border-bottom: 2px solid #e5e7eb;
+            text-align: center;
+            padding: 15px;
+            margin: 5px;
+        }
 
-        <div class="container">
-            <h1>Subscription Payment</h1>
-            <div class="content">
-                <p id="billingMemberName">Loading member details...</p>
-                <p id="billingMemberEmail"></p>
-                <form id="subscriptionPayment">
-                    <label>Cardholder Name</label>
-                    <input type="text" id="cardholderName" required>
+        h1 {
+            background-color: #e3e5ec;
+            text-align: center;
+            padding: 15px;
+            margin: 10px;
+        }
 
-                    <label>Card Number</label>
-                    <input type="text" id="cardNumber" required>
+        form {
+            display: grid;
+            gap: 12px;
+            text-align: left;
+        }
 
-                    <div class="paymentRow">
-                        <div class="paymentField">
-                            <label>Expiry</label>
-                            <input type="text" id="cardExpiry" placeholder="MM / YY" required>
-                        </div>
-                        <div class="paymentField">
-                            <label>CVV</label>
-                            <input type="text" id="cardCvv" required>
-                        </div>
+        label {
+            text-transform: uppercase;
+            color: #5e5e5e;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .paymentRow {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .orderSummary {
+            background-color: #f5f7fb;
+            border-top: 3px solid #3a60c7;
+            padding: 15px;
+            text-align: center;
+        }
+
+        #billingMemberName,
+        #billingMemberEmail,
+        #selectedPlanName,
+        #selectedPlanPrice,
+        #paymentStatusText {
+            color: #3a60c7;
+        }
+
+        button,
+        a {
+            display: inline-block;
+            text-decoration: none;
+            border: none;
+            color: #374151;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            border-radius: 8px;
+            background: transparent;
+        }
+
+        button:hover,
+        a:hover {
+            background: #eef2ff;
+            color: #263c7a;
+        }
+
+        #billingMessage {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <table class="navigation">
+        <tr>
+            <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
+            <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
+            <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+            <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+            <td class="navBox"><a href="memberProfile.html"><strong>Membership</strong></a></td>
+        </tr>
+    </table>
+
+    <div class="container">
+        <h1>Subscription Payment</h1>
+        <div class="content">
+            <p id="billingMemberName">Loading member details...</p>
+            <p id="billingMemberEmail"></p>
+            <form id="subscriptionPayment">
+                <label>Cardholder Name</label>
+                <input type="text" id="cardholderName" required>
+
+                <label>Card Number</label>
+                <input type="text" id="cardNumber" required>
+
+                <div class="paymentRow">
+                    <div class="paymentField">
+                        <label>Expiry</label>
+                        <input type="text" id="cardExpiry" placeholder="MM / YY" required>
                     </div>
-
-                    <div class="orderSummary">
-                        <label>Order Summary</label>
-                        <p id="selectedPlanName">Loading selected plan...</p>
-                        <p id="selectedPlanPrice"></p>
-                        <p id="paymentStatusText">Secure payment</p>
+                    <div class="paymentField">
+                        <label>CVV</label>
+                        <input type="text" id="cardCvv" required>
                     </div>
+                </div>
 
-                    <button type="submit">Pay Now</button>
-                </form>
-                <a href="memberProfile.html">Cancel and go back</a>
-                <p id="billingMessage"></p>
-            </div>
+                <div class="orderSummary">
+                    <label>Order Summary</label>
+                    <p id="selectedPlanName">Loading selected plan...</p>
+                    <p id="selectedPlanPrice"></p>
+                    <p id="paymentStatusText">Secure payment</p>
+                </div>
+
+                <button type="submit">Pay Now</button>
+            </form>
+            <a href="memberProfile.html">Cancel and go back</a>
+            <p id="billingMessage"></p>
         </div>
+    </div>
 
-        <script type="module">
-            import { auth, db } from './firebaseConfig.js';
-            import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-            import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+    <script type="module">
+        import { auth, db } from './firebaseConfig.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+        import { ref, get, push, set, update } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-            const form = document.getElementById("subscriptionPayment");
-            const billingMemberName = document.getElementById("billingMemberName");
-            const billingMemberEmail = document.getElementById("billingMemberEmail");
-            const selectedPlanName = document.getElementById("selectedPlanName");
-            const selectedPlanPrice = document.getElementById("selectedPlanPrice");
-            const paymentStatusText = document.getElementById("paymentStatusText");
-            const billingMessage = document.getElementById("billingMessage");
-            const payButton = form.querySelector("button");
+        const form = document.getElementById("subscriptionPayment");
+        const billingMemberName = document.getElementById("billingMemberName");
+        const billingMemberEmail = document.getElementById("billingMemberEmail");
+        const selectedPlanName = document.getElementById("selectedPlanName");
+        const selectedPlanPrice = document.getElementById("selectedPlanPrice");
+        const paymentStatusText = document.getElementById("paymentStatusText");
+        const billingMessage = document.getElementById("billingMessage");
+        const payButton = form.querySelector("button");
 
-            let currentUser = null;
-            let currentSubscription = null;
+        let currentUser = null;
+        let currentSubscription = null;
 
-            onAuthStateChanged(auth, async (user) => {
-                if (!user) {
-                    window.location.href = "login.html";
-                    return;
-                }
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
 
-                currentUser = user;
+            currentUser = user;
 
-                try {
-                    const userRef = ref(db, "users/" + user.uid);
-                    const userSnapshot = await get(userRef);
+            try {
+                const userRef = ref(db, "users/" + user.uid);
+                const userSnapshot = await get(userRef);
 
-                    if (!userSnapshot.exists()) {
-                        billingMessage.textContent = "User profile was not found.";
-                        payButton.disabled = true;
-                        return;
-                    }
-
-                    const userData = userSnapshot.val();
-                    const profile = userData.profile || {};
-                    currentSubscription = userData.subscription || null;
-
-                    billingMemberName.textContent = profile.name || userData.name || "Member";
-                    billingMemberEmail.textContent = userData.email || user.email || "";
-
-                    if (!currentSubscription || !currentSubscription.planId) {
-                        selectedPlanName.textContent = "No plan selected";
-                        selectedPlanPrice.textContent = "Choose a plan before making payment";
-                        paymentStatusText.textContent = "Redirecting to the plan selection page.";
-                        payButton.disabled = true;
-                        setTimeout(() => {
-                            window.location.href = "memberProfile.html";
-                        }, 1500);
-                        return;
-                    }
-
-                    selectedPlanName.textContent = currentSubscription.planName;
-                    selectedPlanPrice.textContent = "$" + currentSubscription.price + " / " + currentSubscription.billingCycle;
-                    paymentStatusText.textContent = currentSubscription.status === "active"
-                        ? "This subscription is already active."
-                        : "Secure payment";
-
-                    if (currentSubscription.status === "active") {
-                        payButton.disabled = true;
-                        billingMessage.textContent = "Your subscription is already active. Select a different plan to make another payment.";
-                    } else {
-                        payButton.disabled = false;
-                    }
-                } catch (error) {
-                    billingMessage.textContent = "Unable to load billing information: " + error.message;
+                if (!userSnapshot.exists()) {
+                    billingMessage.textContent = "User profile was not found.";
                     payButton.disabled = true;
-                }
-            });
-
-            form.addEventListener("submit", async (event) => {
-                event.preventDefault();
-
-                if (!currentUser || !currentSubscription) {
-                    billingMessage.textContent = "No member subscription found.";
                     return;
                 }
+
+                const userData = userSnapshot.val();
+                const profile = userData.profile || {};
+                currentSubscription = userData.subscription || null;
+
+                billingMemberName.textContent =
+                    userData.profile?.firstName || "Member";
+                billingMemberEmail.textContent = userData.email || user.email || "";
+
+                if (!currentSubscription || !currentSubscription.planId) {
+                    selectedPlanName.textContent = "No plan selected";
+                    selectedPlanPrice.textContent = "Choose a plan before making payment";
+                    paymentStatusText.textContent = "Redirecting to the plan selection page.";
+                    payButton.disabled = true;
+                    setTimeout(() => {
+                        window.location.href = "memberProfile.html";
+                    }, 1500);
+                    return;
+                }
+
+                selectedPlanName.textContent = currentSubscription.planName;
+                selectedPlanPrice.textContent = "$" + currentSubscription.price + " / " + currentSubscription.billingCycle;
+                paymentStatusText.textContent = currentSubscription.status === "active"
+                    ? "This subscription is already active."
+                    : "Secure payment";
 
                 if (currentSubscription.status === "active") {
-                    billingMessage.textContent = "This subscription is already active.";
-                    return;
-                }
-
-                const cardholderName = document.getElementById("cardholderName").value.trim();
-                const cardNumber = document.getElementById("cardNumber").value.replace(/\s+/g, "");
-                const cardExpiry = document.getElementById("cardExpiry").value.trim();
-                const cardCvv = document.getElementById("cardCvv").value.trim();
-
-                const validCardNumber = /^\d{12,19}$/.test(cardNumber);
-                const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry);
-                const validCvv = /^\d{3,4}$/.test(cardCvv);
-
-                if (!cardholderName || !validCardNumber || !validExpiry || !validCvv) {
-                    billingMessage.textContent = "Please complete all payment fields with valid values.";
-                    return;
-                }
-
-                billingMessage.textContent = "Processing payment...";
-                payButton.disabled = true;
-
-                try {
-                    const paymentRef = push(ref(db, "billingHistory/" + currentUser.uid));
-                    const paidAt = new Date().toISOString();
-                    const maskedCardNumber = "****" + cardNumber.slice(-4);
-
-                    await set(paymentRef, {
-                        planId: currentSubscription.planId,
-                        planName: currentSubscription.planName,
-                        amount: currentSubscription.price,
-                        billingCycle: currentSubscription.billingCycle,
-                        maskedCardNumber: maskedCardNumber,
-                        paidAt: paidAt,
-                        status: "paid"
-                    });
-
-                    await update(ref(db, "users/" + currentUser.uid + "/subscription"), {
-                        status: "active",
-                        startDate: paidAt,
-                        latestPaymentId: paymentRef.key,
-                        paymentMethod: maskedCardNumber,
-                        updatedAt: paidAt
-                    });
-
-                    billingMessage.textContent = "Payment recorded successfully. Subscription is now active.";
-                    paymentStatusText.textContent = "Subscription active";
-                    currentSubscription = {
-                        ...currentSubscription,
-                        status: "active",
-                        startDate: paidAt,
-                        latestPaymentId: paymentRef.key,
-                        paymentMethod: maskedCardNumber,
-                        updatedAt: paidAt
-                    };
-                    form.reset();
-                } catch (error) {
-                    billingMessage.textContent = "Payment could not be saved: " + error.message;
+                    payButton.disabled = true;
+                    billingMessage.textContent = "Your subscription is already active. Select a different plan to make another payment.";
+                } else {
                     payButton.disabled = false;
                 }
-            });
-        </script>
-    </body>
+            } catch (error) {
+                billingMessage.textContent = "Unable to load billing information: " + error.message;
+                payButton.disabled = true;
+            }
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (!currentUser || !currentSubscription) {
+                billingMessage.textContent = "No member subscription found.";
+                return;
+            }
+
+            if (currentSubscription.status === "active") {
+                billingMessage.textContent = "This subscription is already active.";
+                return;
+            }
+
+            const cardholderName = document.getElementById("cardholderName").value.trim();
+            const cardNumber = document.getElementById("cardNumber").value.replace(/\s+/g, "");
+            const cardExpiry = document.getElementById("cardExpiry").value.trim();
+            const cardCvv = document.getElementById("cardCvv").value.trim();
+
+            const validCardNumber = /^\d{12,19}$/.test(cardNumber);
+            const validExpiry = /^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry);
+            const validCvv = /^\d{3,4}$/.test(cardCvv);
+
+            if (!cardholderName || !validCardNumber || !validExpiry || !validCvv) {
+                billingMessage.textContent = "Please complete all payment fields with valid values.";
+                return;
+            }
+
+            billingMessage.textContent = "Processing payment...";
+            payButton.disabled = true;
+
+            try {
+                const paymentRef = push(ref(db, "billingHistory/" + currentUser.uid));
+                const paidAt = new Date().toISOString();
+                const maskedCardNumber = "****" + cardNumber.slice(-4);
+
+                await set(paymentRef, {
+                    planId: currentSubscription.planId,
+                    planName: currentSubscription.planName,
+                    amount: currentSubscription.price,
+                    billingCycle: currentSubscription.billingCycle,
+                    maskedCardNumber: maskedCardNumber,
+                    paidAt: paidAt,
+                    status: "paid"
+                });
+
+                await update(ref(db, "users/" + currentUser.uid + "/subscription"), {
+                    status: "active",
+                    startDate: paidAt,
+                    latestPaymentId: paymentRef.key,
+                    paymentMethod: maskedCardNumber,
+                    updatedAt: paidAt
+                });
+
+                billingMessage.textContent = "Payment recorded successfully. Subscription is now active.";
+                paymentStatusText.textContent = "Subscription active";
+                currentSubscription = {
+                    ...currentSubscription,
+                    status: "active",
+                    startDate: paidAt,
+                    latestPaymentId: paymentRef.key,
+                    paymentMethod: maskedCardNumber,
+                    updatedAt: paidAt
+                };
+                form.reset();
+            } catch (error) {
+                billingMessage.textContent = "Payment could not be saved: " + error.message;
+                payButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+
 </html>

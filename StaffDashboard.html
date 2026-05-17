@@ -12,11 +12,23 @@
       margin: 30px 40px;
     }
 
+    .welcomeText {
+      max-width: 900px;
+      margin: 25px 40px;
+    }
+
+    .welcomeText h2 {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .welcomeText p {
+      color: #5e5e5e;
+    }
+
     .dashboardGrid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      max-width: 900px;
-      margin: 25px auto;
       gap: 30px;
       margin: 25px 40px;
     }
@@ -27,16 +39,18 @@
       border-bottom: 2px solid #e5e7eb;
       padding: 30px;
       text-align: center;
-
     }
 
-    .dashCard a:hover {
+    .circleIcon {
       background: #eef2ff;
-      color: #263c7a;
-    }
-
-    .dashCard h2 {
-      margin-top: 0;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 8px;
+      font-size: 28px;
     }
 
     .dashCard p {
@@ -49,9 +63,12 @@
       color: #374151;
       font-weight: 600;
       font-size: 20px;
+      padding: 8px 12px;
+      border-radius: 8px;
     }
 
     .dashCard a:hover {
+      background: #eef2ff;
       color: #263c7a;
     }
 
@@ -63,17 +80,40 @@
       position: absolute;
       top: 10px;
       right: 0;
-
       text-decoration: none;
       color: #1f2a44;
-
       font-size: 18px;
       font-weight: 700;
     }
 
-    .logoutLink:hover {
-      background: #eef2ff;
-      color: #263c7a;
+    .staffLayout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 30px;
+      margin: 25px 40px;
+      align-items: start;
+    }
+
+    .staffDetailsBox {
+      background: white;
+      border-bottom: 2px solid #e5e7eb;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .staffDetailsBox p {
+      color: #5e5e5e;
+      margin-bottom: 6px;
+    }
+
+    .staffDetailsBox span {
+      color: #3a60c7;
+      display: block;
+      margin-bottom: 18px;
+    }
+
+    .dashboardGrid {
+      margin: 0;
     }
   </style>
 </head>
@@ -91,31 +131,88 @@
   <div class="container">
     <h1>Staff Dashboard</h1>
 
+    <div class="welcomeText">
+      <h2 id="welcomeMessage">Welcome Staff!</h2>
+      <p>Use this dashboard to manage gym classes and trainers.</p>
+    </div>
 
-    <div class="dashboardGrid">
-      <div class="dashCard">
-        <h2>Manage Classes</h2>
-        <p>View upcoming classes, check class details, and manage schedules.</p>
-        <a href="staffClassView.html">View Classes</a>
+    <div class="staffLayout">
+
+      <div class="staffDetailsBox">
+        <h2 id="staffName">Staff Name</h2>
+
+        <p>STAFF ID:</p>
+        <span id="staffId"></span>
+
+        <p>EMAIL:</p>
+        <span id="staffEmail"></span>
+
+        <p>ADDRESS:</p>
+        <span id="staffAddress">Address not added</span>
+
+        <p>PHONE NUMBER:</p>
+        <span id="staffPhone">Phone not added</span>
       </div>
 
-      <div class="dashCard">
-        <h2>Manage Trainers</h2>
-        <p>View trainer details and assigned classes.</p>
-        <a href="staffTrainerView.html">View Trainers</a>
+      <div class="dashboardGrid">
+
+        <div class="dashCard">
+          <div class="circleIcon">📅</div>
+          <h2>Manage Classes</h2>
+          <p>View upcoming classes, check class details, and manage schedules.</p>
+          <a href="staffClassView.html">View Classes</a>
+        </div>
+
+        <div class="dashCard">
+          <div class="circleIcon">🏋️</div>
+          <h2>Manage Trainers</h2>
+          <p>View trainer details and assigned classes.</p>
+          <a href="staffTrainerView.html">View Trainers</a>
+        </div>
+
       </div>
+    </div>
 
+    <script type="module">
+      import { auth, db } from './firebaseConfig.js';
+      import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+      import { ref, get } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
-      <script type="module">
-        import { auth } from './firebaseConfig.js';
-        import { signOut } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-
-        document.getElementById("logoutBtn").addEventListener("click", async () => {
-          await signOut(auth);
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
           window.location.href = "index.html";
-        });
-      </script>
+          return;
+        }
 
+        const userRef = ref(db, "users/" + user.uid);
+        const snapshot = await get(userRef);
+
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+
+          if (userData.role !== "staff") {
+            window.location.href = "index.html";
+            return;
+          }
+          const firstName = userData.profile?.firstName || "Staff";
+
+          document.getElementById("welcomeMessage").textContent =
+            "Welcome " + firstName + "!";
+
+          document.getElementById("staffName").textContent = firstName;
+          document.getElementById("staffId").textContent = user.uid;
+          document.getElementById("staffEmail").textContent = userData.email || user.email;
+          document.getElementById("staffAddress").textContent = userData.profile?.address || "Address not added";
+          document.getElementById("staffPhone").textContent = userData.profile?.phone || "Phone not added";
+        }
+      });
+
+      document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await signOut(auth);
+        window.location.href = "index.html";
+      });
+    </script>
+  </div>
 </body>
 
 </html>
