@@ -77,12 +77,11 @@
     <body>
         <table class="navigation">
             <tr>
-                <td class="navBox"><a href=""><strong>[Website name]</strong></a></td>
-                <td class="navBox"><a href=""><strong>Tutorials</strong></a></td>
+                <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
+                <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
                 <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-                <td class="navBox"><a href=""><strong>Shop</strong></a></td>
-                <td class="navBox"><a href="memberProfile.html"><strong>Profile</strong></a></td>
-                <td class="navBox"><a href=""><strong>Logout</strong></a></td>
+                <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+                <td class="navBox"><a href="memberProfile.html"><strong>Membership</strong></a></td>
             </tr>
         </table>
 
@@ -160,7 +159,7 @@
 
             onAuthStateChanged(auth, async (user) => {
                 if (!user) {
-                    window.location.href = "login.html";
+                    window.location.href = "index.html";
                     return;
                 }
 
@@ -206,7 +205,7 @@
                 const phone = profile.phone || userData.phone || "Phone not added";
                 const address = profile.address || userData.address || "Address not added";
 
-                memberName.textContent = fullName;
+                memberName.textContent = (userData.profile?.firstName || "Member");
                 membershipId.textContent = "Membership ID: " + memberId;
                 memberEmail.textContent = "Email: " + (userData.email || user.email || "No email found");
                 memberPhone.textContent = "Phone: " + phone;
