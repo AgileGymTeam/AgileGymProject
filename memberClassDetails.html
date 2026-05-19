@@ -69,13 +69,14 @@
                         <p id="classTime"></p>
                     <label>Class length:</label>
                         <p id="classLength"></p>
-                    <label>Assign trainer:</label>
+                    <label>Assigned trainer:</label>
                         <p id="trainerName"></p>
 
                 <p id="statusMessage"></p>
                 <form id="signup">
                     <button type="button" id="signupButton"></button>
                 </form>
+                <button type="button" id="backButton">Back to classes</button>
                 </div>            
             </div>
         </div>
@@ -174,7 +175,16 @@
                         set(userClassRef, true);
                     }
                 });
+
+                // BACK BUTTON
+                const backbtn = document.getElementById('backButton');
+                backbtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+
+                    window.location.replace('memberClassView.html');
+                })
             });
+
 
         </script>
     </body>
