@@ -52,7 +52,7 @@
                 text-align: left;
                 color: #374151;
             }
-            .selectPlanButton, #continueToBilling {
+            .selectPlanButton, #continueToBilling, #cancelPlanButton {
                 display: inline-block;
                 text-decoration: none;
                 border: none;
@@ -63,10 +63,18 @@
                 margin-top: 10px;
                 border-radius: 8px;
                 background: transparent;
+                cursor: pointer;
             }
             .selectPlanButton:hover, #continueToBilling:hover {
                 background: #eef2ff;
                 color: #263c7a;
+            }
+            #cancelPlanButton {
+                color: #b91c1c;
+            }
+            #cancelPlanButton:hover {
+                background: #fef2f2;
+                color: #991b1b;
             }
             #profileMessage {
                 font-weight: bold;
@@ -100,6 +108,7 @@
                 <p id="selectedPlanStatus">Choose a plan to continue to billing.</p>
                 <div class="planList" id="planList"></div>
                 <a id="continueToBilling" href="memberBillingSubscriptions.html">Continue to billing</a>
+                <button type="button" id="cancelPlanButton" style="display: none;">Cancel Subscription</button>
                 <p id="profileMessage"></p>
             </div>
         </div>
@@ -146,6 +155,7 @@
             const memberAddress = document.getElementById("memberAddress");
             const selectedPlanStatus = document.getElementById("selectedPlanStatus");
             const continueToBilling = document.getElementById("continueToBilling");
+            const cancelPlanButton = document.getElementById("cancelPlanButton");
             const profileMessage = document.getElementById("profileMessage");
             const planList = document.getElementById("planList");
             const planTemplate = document.getElementById("planTemplate");
@@ -230,6 +240,7 @@
                     selectedPlanStatus.textContent = "Choose a plan to continue to billing.";
                     continueToBilling.style.pointerEvents = "none";
                     continueToBilling.style.opacity = "0.6";
+                    cancelPlanButton.style.display = "none";
                     return;
                 }
 
@@ -240,7 +251,27 @@
                 selectedPlanStatus.textContent = statusText + currentSubscription.planName + " ($" + currentSubscription.price + "/" + currentSubscription.billingCycle + ")";
                 continueToBilling.style.pointerEvents = "auto";
                 continueToBilling.style.opacity = "1";
+                cancelPlanButton.style.display = "inline-block";
             }
+
+            cancelPlanButton.addEventListener("click", async () => {
+                if (!currentUser) return;
+
+                const confirmCancel = confirm("Are you sure you want to cancel your subscription?");
+                if (!confirmCancel) return;
+
+                profileMessage.textContent = "Canceling subscription...";
+
+                try {
+                    await set(ref(db, "users/" + currentUser.uid + "/subscription"), null);
+                    currentSubscription = null;
+                    renderPlanStatus();
+                    renderPlans(plansCache);
+                    profileMessage.textContent = "Subscription cancelled successfully.";
+                } catch (error) {
+                    profileMessage.textContent = "Unable to cancel subscription: " + error.message;
+                }
+            });
 
             function renderPlans(plans) {
                 planList.innerHTML = "";
