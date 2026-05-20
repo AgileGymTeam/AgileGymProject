@@ -4,9 +4,6 @@
     <title>Gym Shop</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        body {
-            display: none;
-        }
         h1 {
             text-align: center;
             background-color: #e3e5ec;
@@ -118,11 +115,16 @@
             margin-top: 20px;
             display: none;
         }
+        #content {
+            display: none;
+        }
        
     </style>
 </head>
 <body>
+<div id="content">
     <table class="navigation">
+
     <tr>
         <td class="navBox"><a href="memberDashboard.html"><strong>FitSync</strong></a></td>
         <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
@@ -214,7 +216,11 @@
         <label>Shipping Address</label>
         <input type="text" id="shipping-address" placeholder="Enter your shipping address">
         <label>Card Number</label>
-        <input type="text" id="card-number" placeholder="Enter your card number" maxlength="12">
+        <input type="text" id="card-number" placeholder="Enter your card number" maxlength="16">
+        <label>Expiry Date</label>
+        <input type="text" id="expiry-date" placeholder="MM/YY" maxlength="5">
+        <label>Security Code</label>
+        <input type="text" id="security-code" placeholder="CVV" maxlength="3">
         <br>
         <button onclick="placeOrder()">Place Order</button>
         <button class="btn-outline" onclick="showSelection('basket')">Cancel</button>
@@ -224,20 +230,24 @@
         <div id="orders-content"><p>No orders to display.</p></div>
         <button class="btn-outline" onclick="showSelection('shop')">Back to Shop</button>
     </div>
-    <script type="module">  
-         import { auth } from './firebaseConfig.js';
+    <script type="module">
+        import { auth, db } from './firebaseConfig.js';
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+        import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
  
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "index.html";
                 return;
             }
-            document.body.style.display = 'block';
+            document.getElementById('content').style.display = 'block';
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('section') === 'orders') {
+                showSelection('orders');
+}
         });
 
         let basket = [];
-        let orders = [];
         let orderCount = 1;
 
         function showSelection(selection) {
@@ -333,52 +343,94 @@
             html += `</ul><p><strong>Total: £${totalPrice.toFixed(2)}</strong></p>`;
             summaryBox.innerHTML = html;
         }
-        function placeOrder() {
+         function placeOrder() {
             const fullName = document.getElementById('full-name').value.trim();
             const emailAddress = document.getElementById('email-address').value.trim();
             const shippingAddress = document.getElementById('shipping-address').value.trim();
             const cardNumber = document.getElementById('card-number').value.trim();
-
+            const expiryDate = document.getElementById('expiry-date').value.trim();
+            const securityCode = document.getElementById('security-code').value.trim();
+ 
             if (fullName.length < 5 || emailAddress.length < 8) {
-                alert('Please enter valid name and email address.');
+                alert('Please enter a valid name and email address.');
                 return;
             }
+            if (cardNumber.length < 16) {
+                alert('Please enter a valid 16 digit card number.');
+                return;
+            }
+            if (expiryDate.length < 4) {
+                alert('Please enter a valid expiry date.');
+                return;
+            }
+            if (securityCode.length < 3) {
+                alert('Please enter a valid 3 digit security code.');
+                return;
+            }
+            if (basket.length === 0) {
+                alert('Your basket is empty.');
+                return;
+            }
+ 
+            const user = auth.currentUser;
+            if (!user) {
+                alert('You must be logged in to place an order.');
+                return;
+            }
+ 
             const order = {
-                id: orderCount++,
+                id: Math.floor(Math.random() * 90000) + 10000,
                 items: [...basket],
                 total: basket.reduce((total, item) => total + item.price * item.quantity, 0),
                 fullName,
                 emailAddress,
                 shippingAddress,
-                cardNumber
+                cardNumber,
+                expiryDate,
+                securityCode,
+                date: new Date().toLocaleString()
             };
-            orders.push(order);
-            basket = [];
-            updateBadge();
-            alert('Order placed successfully!');
-            showSelection('orders');
-        }
-        function updateOrders() {
-            const ordersContent = document.getElementById('orders-content');
-            if (orders.length === 0) {
-                ordersContent.innerHTML = '<p>No orders to display.</p>';
-                return;
-            }
-            let html = '';
-            orders.forEach(order => {
-                html += `<div class="order-box">
-                <h3>Order #${order.id}</h3>
-                <p><strong>Name:</strong> ${order.fullName}</p>
-                <p><strong>Email:</strong> ${order.emailAddress}</p>
-                <p><strong>Shipping Address:</strong> ${order.shippingAddress}</p>
-                <p><strong>Total:</strong> £${order.total.toFixed(2)}</p>
-                <h4>Items:</h4><ul>`;
-                order.items.forEach(item => {
-                    html += `<li>${item.quantity} x ${item.name} - £${(item.price * item.quantity).toFixed(2)}</li>`;
-                });
-                html += '</ul></div>';
+ 
+            const ordersRef = ref(db, 'users/' + user.uid + '/orders');
+            push(ordersRef, order).then(() => {
+                basket = [];
+                updateBadge();
+                alert('Order placed successfully!');
+                showSelection('orders');
+            }).catch((error) => {
+                alert('Error placing order: ' + error.message);
             });
-            ordersContent.innerHTML = html;
+        }
+         function updateOrders() {
+            const ordersContent = document.getElementById('orders-content');
+            const user = auth.currentUser;
+ 
+            if (!user) return;
+ 
+            const ordersRef = ref(db, 'users/' + user.uid + '/orders');
+            onValue(ordersRef, (snapshot) => {
+                const data = snapshot.val();
+                if (!data) {
+                    ordersContent.innerHTML = '<p>No orders to display.</p>';
+                    return;
+                }
+                let html = '';
+                Object.values(data).reverse().forEach(order => {
+                    html += `<div class="order-box">
+                    <h3>Order #${order.id}</h3>
+                    <p><strong>Name:</strong> ${order.fullName}</p>
+                    <p><strong>Email:</strong> ${order.emailAddress}</p>
+                    <p><strong>Shipping Address:</strong> ${order.shippingAddress}</p>
+                    <p><strong>Total:</strong> £${order.total.toFixed(2)}</p>
+                    <p><strong>Date:</strong> ${order.date}</p>
+                    <h4>Items:</h4><ul>`;
+                    order.items.forEach(item => {
+                        html += `<li>${item.quantity} x ${item.name} - £${(item.price * item.quantity).toFixed(2)}</li>`;
+                    });
+                    html += '</ul></div>';
+                });
+                ordersContent.innerHTML = html;
+            });
         }
         window.showSelection = showSelection;
         window.addToBasket = addToBasket;
@@ -386,5 +438,6 @@
         window.removeFromBasket = removeFromBasket;
         window.placeOrder = placeOrder;
     </script>
+    </div>
 </body>
 </html>
