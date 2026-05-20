@@ -2,87 +2,76 @@
 <html>
 <head>
     <title>Gym Shop</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
-        .navigation {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #3838c4;
-        }
-        .navBox {
-            padding: 12px 18px;
-            text-align: center;
-        }
-        .navBox a {
-        color: white;
-        text-decoration: none;
-        font-size: 15px;
-        }
-        .navBox a:hover {
-        text-decoration: underline;
-        }
         body {
-            font-family: Arial, sans-serif;
-            background-color: #ffffff;
-            color: #0066ff;
-            margin: 0;
-            padding: 20px;
+            display: none;
         }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
+        h1 {
+            text-align: center;
+            background-color: #e3e5ec;
+            padding: 15px;
+            margin: 10px;
         }
+        
         .product {
-            border: 1px solid #ccc;
-            padding: 10px;
+            background-color: #fff;
+            border-top: 3px solid #3a60c7;
+            border-bottom: 2px solid #e5e7eb;
+            padding: 15px;
             margin-bottom: 10px;
         }
         .product h2 {
             margin-top: 0;
+            color:#374151;
+            font-size: 20px;
         }
-        table {
+        .container table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        th {
-            background-color: #285496;
+        .container th {
+            background-color: #3a60c7;
             color: #ffffff;
             padding: 10px;
             text-align: left;
         }
-        td {
-            border-bottom: 1px solid #ccc;
+        .container td {
+            border-bottom: 1px solid #e5e7eb;
             padding: 10px;
         }
-        tr:nth-child(even) {
+        .container tr:nth-child(even) {
             background-color: #f5f5f5;
         }
         button {
-            background-color: #0a1628;
+            background-color: #3a60c7;
             color: #ffffff;
             border: none;
             padding: 7px 14px;
             cursor: pointer;
+            border-radius: 8px;
         }
         button:hover {
-            background-color: #0a3a6e;
+            background-color: #263c7a;
             opacity: 0.8;
         }
         .btn-red {
             background-color: #cc0000;
+            border-radius: 8px;
         }
         .btn-red:hover {
             background-color: #990000;
         }
         .btn-outline {
             background-color: white;
-            color: #0a1628;
-            border: 2px solid #0a1628;
+            color: #3a60c7;
+            border: 2px solid #3a60c7;
+            border-radius: 8px;
         }
         .btn-outline:hover {
-            background-color: #f0f0f0;
-            color: white;
+            background-color: #eef2ff;
+            color: #263c7a;
         }
         input {
             padding: 8px;
@@ -94,20 +83,36 @@
             display: block;
         }
         label {
+            text-transform: uppercase;
+            color: #5e5e5e;
             font-size: 14px;
             margin-bottom: 4px;
             display: block;
         }
         .summary-box {
             background-color: #f5f5f5;
-            border: 1px solid #ccc;
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+        }
+        .order-box {
+            border-top:  3px solid #3a60c7;
+            border-bottom: 2px solid #e5e7eb;
             padding: 14px;
             margin-bottom: 16px;
         }
-        .order-box {
-            border: 1px solid #ccc;
-            padding: 14px;
-            margin-bottom: 16px;
+        #shop-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        #shop-selection > h2 {
+            margin-bottom: 0px;
+    }
+            #shop-selection > p {
+            margin-top: 0px;
+            grid-column: 1/-1;
         }
         #basket-section, #checkout-section, #orders-section {
             margin-top: 20px;
@@ -117,17 +122,15 @@
     </style>
 </head>
 <body>
-    <div class="container top">
     <table class="navigation">
-        <tr>
-            <td class="navBox"><a href="memberDashboard.html"><strong>[Website name]</strong></a></td>
-            <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
-            <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
-            <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
-            <td class="navBox"><a href="memberProfile.html"><strong>Membership</strong></a></td>
-        </tr>
-    </table>
-</div>
+    <tr>
+        <td class="navBox"><a href="memberDashboard.html"><strong>FitSync</strong></a></td>
+        <td class="navBox"><a href="gymTutorials.html"><strong>Tutorials</strong></a></td>
+        <td class="navBox"><a href="memberClassView.html"><strong>Classes</strong></a></td>
+        <td class="navBox"><a href="gymShop.html"><strong>Shop</strong></a></td>
+        <td class="navBox"><a href="memberProfile.html"><strong>Membership</strong></a></td>
+    </tr>
+</table>
     <div class="container">
         <h1>Gym Shop</h1>
         <p>
@@ -221,7 +224,18 @@
         <div id="orders-content"><p>No orders to display.</p></div>
         <button class="btn-outline" onclick="showSelection('shop')">Back to Shop</button>
     </div>
-    <script>
+    <script type="module">  
+         import { auth } from './firebaseConfig.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+ 
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+            document.body.style.display = 'block';
+        });
+
         let basket = [];
         let orders = [];
         let orderCount = 1;
@@ -366,6 +380,11 @@
             });
             ordersContent.innerHTML = html;
         }
+        window.showSelection = showSelection;
+        window.addToBasket = addToBasket;
+        window.updateQuantity = updateQuantity;
+        window.removeFromBasket = removeFromBasket;
+        window.placeOrder = placeOrder;
     </script>
 </body>
 </html>
