@@ -85,6 +85,23 @@
             color: #263c7a;
         }
 
+        .actionRow {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #cancelSubscriptionButton {
+            color: #b91c1c;
+            cursor: pointer;
+        }
+
+        #cancelSubscriptionButton:hover {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
         #billingMessage {
             font-weight: bold;
         }
@@ -134,7 +151,10 @@
 
                 <button type="submit">Pay Now</button>
             </form>
-            <a href="memberProfile.html">Cancel and go back</a>
+            <div class="actionRow">
+                <a href="memberProfile.html">Back to Plans</a>
+                <button type="button" id="cancelSubscriptionButton" style="display: none;">Cancel Selected Plan</button>
+            </div>
             <p id="billingMessage"></p>
         </div>
     </div>
@@ -152,6 +172,7 @@
         const paymentStatusText = document.getElementById("paymentStatusText");
         const billingMessage = document.getElementById("billingMessage");
         const payButton = form.querySelector("button");
+        const cancelSubscriptionButton = document.getElementById("cancelSubscriptionButton");
 
         let currentUser = null;
         let currentSubscription = null;
@@ -187,6 +208,7 @@
                     selectedPlanPrice.textContent = "Choose a plan before making payment";
                     paymentStatusText.textContent = "Redirecting to the plan selection page.";
                     payButton.disabled = true;
+                    cancelSubscriptionButton.style.display = "none";
                     setTimeout(() => {
                         window.location.href = "memberProfile.html";
                     }, 1500);
@@ -195,6 +217,10 @@
 
                 selectedPlanName.textContent = currentSubscription.planName;
                 selectedPlanPrice.textContent = "$" + currentSubscription.price + " / " + currentSubscription.billingCycle;
+                cancelSubscriptionButton.style.display = "inline-block";
+                cancelSubscriptionButton.textContent = currentSubscription.status === "active"
+                    ? "Cancel Subscription"
+                    : "Cancel Selected Plan";
                 paymentStatusText.textContent = currentSubscription.status === "active"
                     ? "This subscription is already active."
                     : "Secure payment";
@@ -208,6 +234,45 @@
             } catch (error) {
                 billingMessage.textContent = "Unable to load billing information: " + error.message;
                 payButton.disabled = true;
+            }
+        });
+
+        cancelSubscriptionButton.addEventListener("click", async () => {
+            if (!currentUser || !currentSubscription) {
+                billingMessage.textContent = "No selected plan to cancel.";
+                return;
+            }
+
+            const cancelLabel = currentSubscription.status === "active"
+                ? "subscription"
+                : "selected plan";
+            const confirmCancel = confirm("Are you sure you want to cancel this " + cancelLabel + "?");
+
+            if (!confirmCancel) {
+                return;
+            }
+
+            billingMessage.textContent = "Canceling " + cancelLabel + "...";
+            payButton.disabled = true;
+            cancelSubscriptionButton.disabled = true;
+
+            try {
+                await set(ref(db, "users/" + currentUser.uid + "/subscription"), null);
+                currentSubscription = null;
+                selectedPlanName.textContent = "No plan selected";
+                selectedPlanPrice.textContent = "Choose a plan before making payment";
+                paymentStatusText.textContent = "Subscription cancelled.";
+                billingMessage.textContent = "Plan cancelled successfully. Returning to plans page.";
+                cancelSubscriptionButton.style.display = "none";
+                form.reset();
+
+                setTimeout(() => {
+                    window.location.href = "memberProfile.html";
+                }, 1200);
+            } catch (error) {
+                billingMessage.textContent = "Unable to cancel plan: " + error.message;
+                payButton.disabled = currentSubscription?.status === "active";
+                cancelSubscriptionButton.disabled = false;
             }
         });
 
