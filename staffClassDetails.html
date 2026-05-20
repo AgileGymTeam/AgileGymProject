@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
     <head>
         <meta charset="utf-8">
@@ -182,8 +181,10 @@
                     // get snapshot of all trainers and add to trainers cache
                     trainerCache = userSnapshot.val();
 
-                    // clear old trainer options but keep placeholder (avoids duplicates)
-                    assign.querySelectorAll("option:not([value=''])").forEach(opt => opt.remove());
+                    // clear old trainer options but keep placeholder and unassign (avoids duplicates)
+                    assign.querySelectorAll("option:not([value=''])").forEach(opt => {
+                        if (opt.value !== 'unassign') opt.remove();
+                    });
 
                     for (let key in trainerCache) {
                         const trainer = trainerCache[key];
