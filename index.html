@@ -2,361 +2,350 @@
 <html>
 
 <head>
-  <title>Login</title>
-  <link rel="stylesheet" href="styles.css">
+    <title>FitSync</title>
+    <link rel="stylesheet" href="styles.css">
 
-  <style>
-    body {
-      background-color: #f3f4f6;
-      font-family: Arial, sans-serif;
-    }
+    <style>
+        body {
+            background-color: #eeeffc;
+            color: #1f2937;
+        }
 
-    .topNav {
-      background-color: white;
-      border-bottom: 2px solid #e5e7eb;
-      padding: 15px 40px;
-    }
+        .loginBtn {
+            background: #eef2ff;
+            color: #1f2a44;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+        }
 
-    .topNav h2 {
-      color: #1e3a8a;
-      margin: 0;
-    }
+        .loginBtn:hover {
+            color: #263c7a;
+        }
 
-    .loginBox {
-      max-width: 450px;
-      margin: 80px auto;
-      background-color: white;
-      border-top: 3px solid #3a60c7;
-      border-bottom: 2px solid #e5e7eb;
-      padding: 30px;
-      text-align: center;
-    }
+        .sectionTitle {
+            text-align: center;
+            padding: 10px;
+            margin: 35px auto 20px;
+            max-width: 1100px;
+            border-bottom: 2px solid #cecece;
+        }
 
-    .loginBox form {
-      display: grid;
-      gap: 12px;
-      text-align: left;
-    }
+        .sectionTitle h1 {
+            margin: 0;
+        }
 
-    .loginBox label {
-      text-transform: uppercase;
-      color: #5e5e5e;
-      font-weight: bold;
-    }
+        .offerGrid,
+        .planGrid,
+        .productGrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto 35px;
+        }
 
-    .loginBox input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-    }
+        .offerCard {
+            min-height: 210px;
+            background-size: cover;
+            background-position: center;
+            border-top: 3px solid #3a60c7;
+            border-bottom: 2px solid #e5e7eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .buttonRow {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 10px;
-    }
+        .offerCard::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(31, 42, 68, 0.55);
+        }
 
-    .buttonRow button {
-      border: none;
-      color: #374151;
-      font-weight: 600;
-      font-size: 16px;
-      padding: 8px 12px;
-      border-radius: 8px;
-      background: transparent;
-      cursor: pointer;
-    }
+        .offerCard div {
+            position: relative;
+            padding: 25px;
+        }
 
-    .buttonRow button:hover {
-      background-color: #eef2ff;
-      color: #263c7a;
-    }
+        .offerCard h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
 
-    #loginMessage {
-      color: #3a60c7;
-      text-align: center;
-    }
+        .planCard,
+        .productCard {
+            background: white;
+            border-top: 3px solid #3a60c7;
+            border-bottom: 2px solid #e5e7eb;
+            padding: 25px;
+            text-align: center;
+        }
 
-    .forgotPasswordRow {
-      text-align: center;
-      margin-top: 12px;
-    }
+        .planCard img,
+        .productCard img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
 
-    .forgotPasswordRow a {
-      font-size: 14px;
-      font-weight: normal;
-      color: #3b5bdb;
-      text-decoration: none;
-    }
+        .planCard h2,
+        .productCard h2 {
+            color: #1f2937;
+            margin-top: 0;
+        }
 
-    .forgotPasswordRow a:hover {
-      text-decoration: underline;
-    }
+        .planCard p,
+        .productCard p {
+            color: #3a60c7;
+        }
 
-    .passwordBox {
-      position: relative;
-    }
+        .price {
+            font-weight: 700;
+            color: #1f2a44;
+        }
 
-    .passwordBox input {
-      padding-right: 40px;
-    }
+        .homeNav {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 2px solid #e5e7eb;
+            padding: 18px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .togglePassword {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: #5e5e5e;
-      font-size: 18px;
-    }
-  </style>
+        .homeNav h1 {
+            margin: 0;
+            color: #1f2a44;
+            font-size: 34px;
+        }
+
+        .heroSlideshow {
+            max-width: 1100px;
+            height: 360px;
+            margin: 30px auto;
+            border-top: 3px solid #3a60c7;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: heroChange 12s infinite;
+            position: relative;
+        }
+
+        .heroSlideshow::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(31, 42, 68, 0.55);
+        }
+
+        .heroText {
+            position: relative;
+            text-align: center;
+            color: white;
+            padding: 30px;
+        }
+
+        .heroText h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .heroText p {
+            font-size: 20px;
+        }
+
+        .contactBlock {
+            width: 100%;
+            margin: 35px 0 0 0;
+            background: white;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+            padding: 20px 50px;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .mapSide img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .contactSide p {
+            color: #374151;
+            font-size: 15px;
+            line-height: 1.2;
+            margin: 6px 0;
+        }
+
+        .contactSide h2 {
+            font-size: 26px;
+            margin: 0 0 12px 0;
+        }
+
+        .registerLine {
+            text-align: center;
+            margin: 25px auto 40px;
+            font-size: 28px;
+            color: #1f2937;
+        }
+
+        @keyframes heroChange {
+            0% {
+                background-image: url("images/hero1.jpg");
+            }
+
+            33% {
+                background-image: url("images/hero2.jpg");
+            }
+
+            66% {
+                background-image: url("images/hero3.jpg");
+            }
+
+            100% {
+                background-image: url("images/hero1.jpg");
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="topNav">
-    <h2>FitSync</h2>
-  </div>
+    <div class="homeNav">
+        <h1>FitSync</h1>
+        <a class="loginBtn" href="login.html">Login / Register</a>
+    </div>
+
+    <div class="heroSlideshow">
+        <div class="heroText">
+            <h1>Welcome to FitSync</h1>
+            <p>Your all-in-one gym system for classes, tutorials, memberships and fitness products.</p>
+            <p>Register with us to access all of our features!</p>
+        </div>
+    </div>
+
+    <div class="sectionTitle">
+        <h1>What we offer</h1>
+    </div>
+
+    <div class="offerGrid">
+
+        <div class="offerCard" style="background-image: url('images/gym.jpg');">
+            <div>
+                <h2>Gym Tutorials</h2>
+                <p>Watch helpful exercise and machine tutorials to improve your workouts.</p>
+            </div>
+        </div>
+
+        <div class="offerCard" style="background-image: url('images/trainer.jpg');">
+            <div>
+                <h2>Fitness Classes</h2>
+                <p>View upcoming gym classes and sign up for training sessions.</p>
+            </div>
+        </div>
+
+        <div class="offerCard" style="background-image: url('images/pool.jpg');">
+            <div>
+                <h2>Membership Plans</h2>
+                <p>Choose a plan that fits your fitness goals and gym routine.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="sectionTitle">
+        <h1>Subscription Plans</h1>
+    </div>
+
+    <div class="planGrid">
+
+        <div class="planCard">
+            <img src="images/gymaccess.jpg" alt="Gym">
+            <h2>Basic Plan</h2>
+            <p class="price">£10 / month</p>
+            <p>Gym access and locker room access.</p>
+        </div>
+
+        <div class="planCard">
+            <img src="images/traineraccess.jpg" alt="Trainer">
+            <h2>Elite Plan</h2>
+            <p class="price">£50 / month</p>
+            <p>Gym access, pool access, sauna and trainer support.</p>
+        </div>
+
+        <div class="planCard">
+            <img src="images/poolaccess.jpg" alt="Pool">
+            <h2>Pro Plan</h2>
+            <p class="price">£25 / month</p>
+            <p>Gym access, locker room, pool access and sauna.</p>
+        </div>
+
+    </div>
+
+    <div class="sectionTitle">
+        <h1>Our most popular products</h1>
+    </div>
+
+    <div class="productGrid">
+
+        <div class="productCard">
+            <img src="images/dumbbells.jpg" alt="Dumbbells">
+            <h2>Dumbbells</h2>
+            <p>Set of 2, 10kg each</p>
+            <p class="price">£25.00</p>
+        </div>
+
+        <div class="productCard">
+            <img src="images/yogaMat.jpg" alt="Yoga Mat">
+            <h2>Yoga Mat</h2>
+            <p>Non-slip, 6mm thickness</p>
+            <p class="price">£15.00</p>
+        </div>
+
+        <div class="productCard">
+            <img src="images/resistance.jpg" alt="Resistance Bands">
+            <h2>Resistance Bands</h2>
+            <p>Set of 5, varying resistance levels</p>
+            <p class="price">£20.00</p>
+        </div>
+    </div>
+
+    <h1 class="registerLine">Register with us to shop our range!</h1>
+
+    <div class="contactBlock">
 
-  <div class="loginBox" id="loginBox">
-    <h1>Login Page</h1>
+        <div class="mapSide">
+            <img src="images/map.jpg" alt="Map location">
+        </div>
 
-    <form id="loginForm">
+        <div class="contactSide">
+            <h2>Visit FitSync</h2>
 
-      <label>Email:</label>
-      <input type="email" id="email">
+            <p><strong>Address:</strong></p>
+            <p>123 Fitness Street</p>
+            <p>Birmingham</p>
+            <p>B1 1AA</p>
 
-      <label>Password:</label>
-      <div class="passwordBox">
-        <input type="password" id="password">
-        <span class="togglePassword" onclick="togglePassword('password', this)"><span id="eyeIcon">👁</span></span>
-      </div>
+            <p><strong>Contact:</strong></p>
+            <p>Phone: 0121 000 0000</p>
+            <p>Email: info@fitsync.com</p>
 
-      <div class="buttonRow">
-        <button type="submit">Login</button>
+            <p>Login or register to view full membership benefits, class sign-ups and shop features.</p>
+        </div>
 
-        <button type="button" onclick="showRegister()">
-          Register
-        </button>
-      </div>
+    </div>
 
-      <div class="forgotPasswordRow">
-        <a id="forgotPassword">Forgot password?</a>
-      </div>
-      <p id="loginMessage"></p>
-
-    </form>
-  </div>
-
-  <div class="loginBox" id="registerBox" style="display:none;">
-
-    <h1>Register</h1>
-
-    <form id="registerForm">
-
-      <label>First Name:</label>
-      <input type="text" id="firstName">
-
-      <label>Email:</label>
-      <input type="email" id="registerEmail">
-
-      <label>Password:</label>
-      <input type="password" id="registerPassword">
-
-      <div class="buttonRow">
-        <button type="submit">Create Account</button>
-
-        <button type="button" onclick="showLogin()">
-          Back to Login
-        </button>
-      </div>
-
-      <p id="registerMessage"></p>
-
-    </form>
-
-  </div>
-
-  <script type="module">
-    import { auth, db } from './firebaseConfig.js';
-    import {
-      signInWithEmailAndPassword,
-      sendPasswordResetEmail,
-    } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-    import { ref, get, set } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
-    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
-
-
-    window.showRegister = function () {
-
-      document.getElementById("loginBox").style.display = "none";
-
-      document.getElementById("registerBox").style.display = "block";
-    };
-
-    window.showLogin = function () {
-
-      document.getElementById("registerBox").style.display = "none";
-
-      document.getElementById("loginBox").style.display = "block";
-    };
-
-    document.getElementById("forgotPassword").addEventListener("click", async () => {
-
-      const email =
-        document.getElementById("email").value;
-
-      if (!email) {
-        loginMessage.textContent =
-          "Please enter your email first.";
-        return;
-      }
-
-      try {
-
-        await sendPasswordResetEmail(auth, email);
-
-        loginMessage.textContent =
-          "Password reset email sent.";
-
-      } catch (error) {
-
-        loginMessage.textContent =
-          "Unable to send reset email.";
-      }
-    });
-
-
-    const form = document.getElementById("loginForm");
-    const loginMessage = document.getElementById("loginMessage");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-
-        loginMessage.textContent = "Login successful";
-
-        // fetch from database
-        const userRef = ref(db, "users/" + user.uid);
-        const snapshot = await get(userRef);
-
-        if (snapshot.exists()) {
-          const userData = snapshot.val();
-
-          if (userData.role === "staff") {
-            window.location.href = "StaffDashboard.html";
-          } else if (userData.role === "trainer") {
-            window.location.href = "trainerDetails.html";
-          } else {
-            window.location.href = "memberDashboard.html";
-          }
-        } else {
-          loginMessage.textContent = "User not found in database";
-        }
-
-      } catch (error) {
-        if (error.code === "auth/invalid-email" || error.code === "auth/missing-password") {
-          loginMessage.textContent = "Please enter your login details.";
-        } else if (error.code === "auth/invalid-credential") {
-          loginMessage.textContent = "Email or password is incorrect.";
-        } else {
-          loginMessage.textContent = "Login failed. Please try again.";
-        }
-
-        loginMessage.style.color = "red";
-      }
-    });
-    const registerForm = document.getElementById("registerForm");
-
-    const registerMessage =
-      document.getElementById("registerMessage");
-
-    registerForm.addEventListener("submit", async (e) => {
-
-      e.preventDefault();
-
-      const firstName =
-        document.getElementById("firstName").value;
-
-      const email =
-        document.getElementById("registerEmail").value;
-
-      const password =
-        document.getElementById("registerPassword").value;
-
-      try {
-
-        const userCredential =
-          await createUserWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-
-        const user = userCredential.user;
-
-        await set(ref(db, "users/" + user.uid), {
-
-          email: email,
-
-          role: "member",
-
-          profile: {
-            firstName: firstName,
-            phone: "",
-            address: ""
-          }
-
-        });
-
-        registerMessage.textContent =
-          "Registration successful";
-
-        setTimeout(() => {
-
-          showLogin();
-
-        }, 1000);
-
-      }
-
-      catch (error) {
-        if (error.code === "auth/email-already-in-use") {
-          registerMessage.textContent = "This account is already registered.";
-        } else if (error.code === "auth/invalid-email") {
-          registerMessage.textContent = "Please enter a valid email address.";
-        } else if (error.code === "auth/weak-password") {
-          registerMessage.textContent = "Password must be at least 6 characters.";
-        } else {
-          registerMessage.textContent = "Registration failed. Please try again.";
-        }
-
-        registerMessage.style.color = "red";
-      }
-    });
-    window.togglePassword = function (inputId) {
-
-      const input = document.getElementById(inputId);
-      const eyeIcon = event.target;
-
-      if (input.type === "password") {
-        input.type = "text";
-        eyeIcon.textContent = "👁";
-      } else {
-        input.type = "password";
-        eyeIcon.textContent = "/👁";
-      }
-    };
-  </script>
 </body>
 
 </html>
